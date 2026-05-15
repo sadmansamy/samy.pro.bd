@@ -97,7 +97,7 @@
                 const isAtBottom = chat.scrollHeight - chat.clientHeight <= chat.scrollTop + 60;
 
                 // Targeted JSON file for movies
-                const response = await fetch('./movies-chat.json?t=' + Date.now());
+                const response = await fetch('./chat_movie.json?t=' + Date.now());
                 if (!response.ok) throw new Error("JSON not found");
                 
                 const messages = await response.json();
