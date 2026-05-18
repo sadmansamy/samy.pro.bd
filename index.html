@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="manifest" href="manifest.json">
+    <link rel="manifest" href="/manifest.json">
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <meta name="theme-color" content="#0b57d0">
     <title>samy.pro.bd</title>
@@ -34,8 +34,6 @@
             flex-direction: column;
             align-items: center;
         }
-        
-        /* 404 Visual Styling matching screenshot */
         .error-code {
             font-size: 7.5rem;
             font-weight: 900;
@@ -51,7 +49,6 @@
             color: var(--subtext);
             margin: 24px 0 48px 0;
         }
-
         .header { 
             text-align: center; 
             margin-bottom: 24px; 
@@ -59,8 +56,6 @@
             font-size: 1.8rem; 
             color: var(--subtext);
         }
-
-        /* Pill-shaped Input Bar matching screenshot */
         .input-wrapper { 
             background: var(--bubble-bg); 
             border-radius: 30px; 
@@ -101,11 +96,7 @@
             display: none; 
             margin-left: 8px;
         }
-
-        /* Directory Bubbles */
-        #content-list {
-            width: 100%;
-        }
+        #content-list { width: 100%; }
         .bubble { 
             background: var(--bubble-bg); 
             padding: 20px 24px; 
@@ -167,7 +158,6 @@
     goButton.addEventListener('click', doRedirect);
 
     async function init() {
-        // --- 2FA FORWARDING (PATH-BASED) ---
         if (pathSegments.length > 0 && pathSegments[0].toLowerCase() === '2fa') {
             const secret = pathSegments.slice(1).join('/');
             const hash = window.location.hash;
@@ -229,22 +219,11 @@
         });
     }
 
-    function renderRedirects(data) {
-        document.getElementById('page-title').textContent = "Directory";
-        Object.keys(data).forEach(key => {
-            const div = document.createElement('div');
-            div.className = 'bubble fullclickable';
-            div.onclick = () => window.location.href = data[key];
-            div.innerHTML = `<strong>${key}</strong><br><small style="color:var(--link)">${data[key]}</small>`;
-            listDiv.appendChild(div);
-        });
-    }
-
     init();
 
-    // Matching Chat PWA registration code layout exactly
+    // Recreated precisely from the Chat code format
     if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('sw.js').catch(() => {
+        navigator.serviceWorker.register('/sw.js').catch(() => {
             console.log("Service Worker optional for this build.");
         });
     }
