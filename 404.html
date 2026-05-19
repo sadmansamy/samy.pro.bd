@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="manifest" href="manifest.json">
+    <link rel="manifest" href="/manifest.json">
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <meta name="theme-color" content="#0b57d0">
     <title>samy.pro.bd</title>
@@ -34,14 +34,13 @@
             flex-direction: column;
             align-items: center;
         }
-        
-        /* 404 Visual Styling matching screenshot */
         .error-code {
             font-size: 7.5rem;
             font-weight: 900;
             line-height: 1;
             margin: 0;
             letter-spacing: -2px;
+            display: none;
         }
         .error-message {
             font-size: 1rem;
@@ -50,8 +49,8 @@
             letter-spacing: 1px;
             color: var(--subtext);
             margin: 24px 0 48px 0;
+            display: none;
         }
-
         .header { 
             text-align: center; 
             margin-bottom: 24px; 
@@ -59,8 +58,6 @@
             font-size: 1.8rem; 
             color: var(--subtext);
         }
-
-        /* Pill-shaped Input Bar matching screenshot */
         .input-wrapper { 
             background: var(--bubble-bg); 
             border-radius: 30px; 
@@ -101,11 +98,7 @@
             display: none; 
             margin-left: 8px;
         }
-
-        /* Directory Bubbles */
-        #content-list {
-            width: 100%;
-        }
+        #content-list { width: 100%; }
         .bubble { 
             background: var(--bubble-bg); 
             padding: 20px 24px; 
@@ -136,7 +129,7 @@
     
     <div class="input-wrapper">
         <span class="prefix">samy.pro.bd/</span>
-        <input type="text" id="shortcut-input" placeholder="......" autocomplete="off" spellcheck="false">
+        <input type="text" id="shortcut-input" placeholder="......" autocomplete="off" autocapitalize="none" spellcheck="false" inputmode="url">
         <button id="go-button" class="go-btn">Go</button>
     </div>
     
@@ -167,7 +160,7 @@
     goButton.addEventListener('click', doRedirect);
 
     async function init() {
-        // --- 2FA FORWARDING (PATH-BASED) ---
+        // 1. Pass through routing rule for 2FA profiles
         if (pathSegments.length > 0 && pathSegments[0].toLowerCase() === '2fa') {
             const secret = pathSegments.slice(1).join('/');
             const hash = window.location.hash;
@@ -175,13 +168,15 @@
             return;
         }
 
+        // 2. Clear out trailing slashes to keep route matching clean
         if (rawPath.endsWith('/') && rawPath.length > 1 && pathSegments[0]?.toLowerCase() !== 'p') {
             window.location.replace(rawPath.slice(0, -1));
             return;
         }
 
         try {
-            if (pathSegments.length === 0) {
+            // Evaluates root domains or standalone PWA asset configurations natively
+            if (pathSegments.length === 0 || pathSegments[0].toLowerCase() === 'index.html') {
                 hide404Elements();
                 const res = await fetch('/homepage.json');
                 renderBubbles(await res.json());
@@ -198,10 +193,17 @@
                 const redirects = await res.json();
                 const key = pathSegments[0].toLowerCase();
                 if (redirects[key]) { window.location.replace(redirects[key]); return; }
-                showError(redirects);
+                showError();
             }
+        } catch (err) { 
+            if (pathSegments.length === 0 || pathSegments[0].toLowerCase() === 'index.html') {
+                hide404Elements();
+            } else {
+                showError();
+            }
+        } finally {
             document.body.style.opacity = "1";
-        } catch (err) { document.body.style.opacity = "1"; }
+        }
     }
 
     function hide404Elements() {
@@ -209,9 +211,15 @@
         errorMessageEl.style.display = 'none';
     }
 
-    function showError(redirectData = null) {
+    function showError() {
         errorCodeEl.style.display = 'block';
         errorMessageEl.style.display = 'block';
+    }
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
     }
 
     function renderBubbles(data) {
@@ -219,32 +227,23 @@
             const div = document.createElement('div');
             div.className = 'bubble';
             const content = typeof item === 'string' ? item : item.text;
+            
             const linkMatches = content.match(urlRegex);
             if (linkMatches && linkMatches.length === 1) {
                 div.classList.add('fullclickable');
                 div.onclick = () => window.location.href = linkMatches[0];
             }
-            div.innerHTML = content.replace(urlRegex, url => `<a href="${url}">${url}</a>`);
-            listDiv.appendChild(div);
-        });
-    }
-
-    function renderRedirects(data) {
-        document.getElementById('page-title').textContent = "Directory";
-        Object.keys(data).forEach(key => {
-            const div = document.createElement('div');
-            div.className = 'bubble fullclickable';
-            div.onclick = () => window.location.href = data[key];
-            div.innerHTML = `<strong>${key}</strong><br><small style="color:var(--link)">${data[key]}</small>`;
+            
+            const safeContent = escapeHtml(content);
+            div.innerHTML = safeContent.replace(urlRegex, url => `<a href="${url}">${url}</a>`);
             listDiv.appendChild(div);
         });
     }
 
     init();
 
-    // Matching Chat PWA registration code layout exactly
     if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('sw.js').catch(() => {
+        navigator.serviceWorker.register('/sw.js').catch(() => {
             console.log("Service Worker optional for this build.");
         });
     }
