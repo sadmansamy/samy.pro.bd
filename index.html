@@ -40,6 +40,7 @@
             line-height: 1;
             margin: 0;
             letter-spacing: -2px;
+            display: none;
         }
         .error-message {
             font-size: 1rem;
@@ -48,6 +49,7 @@
             letter-spacing: 1px;
             color: var(--subtext);
             margin: 24px 0 48px 0;
+            display: none;
         }
         .header { 
             text-align: center; 
@@ -127,7 +129,7 @@
     
     <div class="input-wrapper">
         <span class="prefix">samy.pro.bd/</span>
-        <input type="text" id="shortcut-input" placeholder="......" autocomplete="off" spellcheck="false">
+        <input type="text" id="shortcut-input" placeholder="......" autocomplete="off" autocapitalize="none" spellcheck="false" inputmode="url">
         <button id="go-button" class="go-btn">Go</button>
     </div>
     
@@ -158,6 +160,7 @@
     goButton.addEventListener('click', doRedirect);
 
     async function init() {
+        // 1. Pass through routing rule for 2FA profiles
         if (pathSegments.length > 0 && pathSegments[0].toLowerCase() === '2fa') {
             const secret = pathSegments.slice(1).join('/');
             const hash = window.location.hash;
@@ -165,13 +168,15 @@
             return;
         }
 
+        // 2. Clear out trailing slashes to keep route matching clean
         if (rawPath.endsWith('/') && rawPath.length > 1 && pathSegments[0]?.toLowerCase() !== 'p') {
             window.location.replace(rawPath.slice(0, -1));
             return;
         }
 
         try {
-            if (pathSegments.length === 0) {
+            // Evaluates root domains or standalone PWA asset configurations natively
+            if (pathSegments.length === 0 || pathSegments[0].toLowerCase() === 'index.html') {
                 hide404Elements();
                 const res = await fetch('/homepage.json');
                 renderBubbles(await res.json());
@@ -188,10 +193,17 @@
                 const redirects = await res.json();
                 const key = pathSegments[0].toLowerCase();
                 if (redirects[key]) { window.location.replace(redirects[key]); return; }
-                showError(redirects);
+                showError();
             }
+        } catch (err) { 
+            if (pathSegments.length === 0 || pathSegments[0].toLowerCase() === 'index.html') {
+                hide404Elements();
+            } else {
+                showError();
+            }
+        } finally {
             document.body.style.opacity = "1";
-        } catch (err) { document.body.style.opacity = "1"; }
+        }
     }
 
     function hide404Elements() {
@@ -199,9 +211,15 @@
         errorMessageEl.style.display = 'none';
     }
 
-    function showError(redirectData = null) {
+    function showError() {
         errorCodeEl.style.display = 'block';
         errorMessageEl.style.display = 'block';
+    }
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
     }
 
     function renderBubbles(data) {
@@ -209,19 +227,21 @@
             const div = document.createElement('div');
             div.className = 'bubble';
             const content = typeof item === 'string' ? item : item.text;
+            
             const linkMatches = content.match(urlRegex);
             if (linkMatches && linkMatches.length === 1) {
                 div.classList.add('fullclickable');
                 div.onclick = () => window.location.href = linkMatches[0];
             }
-            div.innerHTML = content.replace(urlRegex, url => `<a href="${url}">${url}</a>`);
+            
+            const safeContent = escapeHtml(content);
+            div.innerHTML = safeContent.replace(urlRegex, url => `<a href="${url}">${url}</a>`);
             listDiv.appendChild(div);
         });
     }
 
     init();
 
-    // Recreated precisely from the Chat code format
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('/sw.js').catch(() => {
             console.log("Service Worker optional for this build.");
