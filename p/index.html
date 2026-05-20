@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Samy - System Hub</title>
+    <style>
+        :root {
+            --bg-color: #e7ebf0;
+            --bubble-left: #ffffff;
+            --link-color: #00488d;
+        }
+
+        body { 
+            background-color: var(--bg-color); 
+            margin: 0; 
+            font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+            display: flex; 
+            justify-content: center; 
+        }
+
+        .chat-container { 
+            width: 100%; 
+            max-width: 600px; 
+            height: 100vh; 
+            padding: 15px; 
+            box-sizing: border-box; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 12px; 
+            overflow-y: auto; 
+            background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); 
+            background-blend-mode: overlay;
+            scroll-behavior: smooth; 
+        }
+
+        .service-msg {
+            align-self: center;
+            background: rgba(74, 114, 152, 0.6);
+            color: #fff;
+            font-size: 13px;
+            font-weight: 500;
+            padding: 4px 12px;
+            border-radius: 12px;
+            text-align: center;
+            max-width: 80%;
+            box-shadow: 0 1px 1px rgba(0,0,0,0.05);
+        }
+
+        .bubble { 
+            max-width: 85%; 
+            padding: 10px 16px; 
+            border-radius: 18px; 
+            font-size: 16px; 
+            line-height: 1.4; 
+            color: #000; 
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1); 
+            align-self: flex-start;
+            background-color: var(--bubble-left); 
+            border-bottom-left-radius: 4px; 
+        }
+
+        .bubble a { 
+            color: var(--link-color); 
+            text-decoration: none; 
+            font-weight: 700; 
+            border-bottom: 1px solid rgba(0, 72, 141, 0.2);
+        }
+
+        .shortcut {
+            color: #e05454;
+            font-family: monospace;
+            background: rgba(0,0,0,0.05);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 14px;
+            margin-right: 4px;
+        }
+
+        .chat-container::-webkit-scrollbar { width: 4px; }
+        .chat-container::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 10px; }
+    </style>
+    <script>
+        // SMART ROUTER LOGIC: Fixes the trailing slash issue automatically!
+        // If a user accesses /p/shorturl/ or /p/redirectlist/, this script grabs it,
+        // cleans it up, and sends them directly to the matching .html file.
+        const path = window.location.pathname;
+        if (path.endsWith('/')) {
+            const segments = path.split('/').filter(Boolean);
+            // If they are deeper than just "/p/" (e.g., "/p/shorturl/")
+            if (segments.length > 1) {
+                const targetPage = segments[1]; // Get 'shorturl' or 'redirectlist'
+                window.location.replace(`/p/${targetPage}`);
+            }
+        }
+    </script>
+</head>
+<body>
+
+    <div class="chat-container">
+        <div class="service-msg">System Applications Channel</div>
+
+        <div class="bubble">
+            <span class="shortcut">/shorturl</span> → Launch the 
+            <a href="/p/shorturl">Short URL Generator Engine</a> to compress links and manage your JSON parameters.
+        </div>
+
+        <div class="bubble">
+            <span class="shortcut">/redirectlist</span> → Open the 
+            <a href="/p/redirectlist">Active Redirect Hub Feed</a> to browse live configuration short links.
+        </div>
+
+        <div class="bubble">
+            <span class="shortcut">/qr</span> → Open the 
+            <a href="/p/qr">QR Code Generator Utility</a>.
+        </div>
+    </div>
+
+</body>
+</html>
