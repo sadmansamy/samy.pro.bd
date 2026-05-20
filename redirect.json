@@ -1,16 +1,19 @@
 {
-  "2fa": "http://2fa.samy.pro.bd",
-  "qr": "https://samy.pro.bd/page/qr",
-  "password": "https://vault.bitwarden.eu",
-  "bw": "https://vault.bitwarden.eu",
-"su": "https://samy.pro.bd/shorturl/",
-  "m": "https://samy.pro.bd/chat/movies",
+
+"2fa": "http://2fa.samy.pro.bd",
+"qr": "https://samy.pro.bd/p/qr",
+"password": "https://vault.bitwarden.eu",
+"bw": "https://vault.bitwarden.eu",
+"su": "https://samy.pro.bd/p/shorturl/",
+"shorturl": "https://samy.pro.bd/p/shorturl/",
+"m": "https://samy.pro.bd/chat/movies",
+"ws": "https://banglacalls.com/call",
 
 
- "ws": "https://banglacalls.com/call",
-  "rl": "https://samy.pro.bd/p/redirectlist",
+"rl": "https://samy.pro.bd/p/redirectlist",
   "passwo2rd": "https://",
   "bw5": "https://",
 "1su": "https://",
   "m6": "https://"
+
 }
