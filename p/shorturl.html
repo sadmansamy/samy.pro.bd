@@ -10,7 +10,8 @@
             --card: #ffffff; 
             --primary: #0b57d0; 
             --text: #1a1c1e; 
-            --bg-chat: #e7ebf0;
+            /* MATCHED: Set exact chat background color matching your working theme */
+            --bg-chat: #e1dbd6; 
             --bubble-left: #ffffff;
             --link-color: #00488d;
         }
@@ -48,7 +49,7 @@
 
         /* --- TELEGRAM CHAT VIEW STYLE --- */
         .chat-view {
-            display: none; /* Controlled via JS */
+            display: none; 
             width: 100%;
             max-width: 600px;
             height: 100vh;
@@ -58,6 +59,7 @@
             gap: 12px;
             overflow-y: auto;
             background-color: var(--bg-chat);
+            /* MATCHED: Changed pattern graphic asset to match the working /chat route */
             background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png');
             background-blend-mode: overlay;
             scroll-behavior: smooth;
@@ -100,7 +102,6 @@
 </head>
 <body>
 
-<!-- VIEW 1: Generator Dashboard -->
 <div id="generatorContainer" class="generator-view">
     <div class="card">
         <h2>Short URL Generator</h2>
@@ -123,13 +124,11 @@
     </div>
 </div>
 
-<!-- VIEW 2: Telegram Chat Interface -->
 <div id="chatContainer" class="chat-view"></div>
 
 <script>
     const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
 
-    // Toggle between views seamlessly without breaking history
     function toggleView(view) {
         const gen = document.getElementById('generatorContainer');
         const chat = document.getElementById('chatContainer');
@@ -182,14 +181,12 @@
             
             chat.innerHTML = '';
 
-            // Header/Return back badge banner
             const header = document.createElement('div');
             header.className = 'service-msg';
             header.innerText = "← Return to Generator Dashboard";
             header.onclick = () => toggleView('generator');
             chat.appendChild(header);
 
-            // Generate clean chat bubbles from the root JSON object
             Object.keys(data).forEach(key => {
                 const destination = data[key];
                 if (!destination || destination === "https://") return;
@@ -221,7 +218,6 @@
         });
     }
 
-    // Check URL parameters to see if user wants to directly view the list
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('view') === 'links') {
         toggleView('links');
