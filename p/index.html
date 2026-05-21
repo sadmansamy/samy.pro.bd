@@ -6,6 +6,7 @@
     <title>Samy - System Hub</title>
     <style>
         :root {
+            /* Set to your exact preferred tan/beige chat background color tint */
             --bg-color: #e1dbd6; 
             --bubble-left: #ffffff;
             --link-color: #00488d;
@@ -86,9 +87,8 @@
         const path = window.location.pathname;
         if (path.endsWith('/')) {
             const segments = path.split('/').filter(Boolean);
-            // If they are deep inside a sub-link (e.g., "/p/2fa/" -> segments are ['p', '2fa'])
             if (segments.length > 1) {
-                const targetPage = segments[1]; // Dynamically grabs '2fa', 'qr', etc.
+                const targetPage = segments[1]; 
                 window.location.replace(`/p/${targetPage}`);
             }
         }
@@ -98,10 +98,11 @@
 
     <div id="hubContainer" class="chat-container">
         <div class="service-msg">System Applications Channel</div>
-    </div>
+        
+        </div>
 
 <script>
-    // System Applications Registry
+    // System Applications Registry - simply add your new items right here
     const systemApps = {
         "shorturl": {
             "title": "Short URL Generator Engine",
@@ -117,16 +118,18 @@
         },
         "2fa": {
             "title": "Two-Factor Authentication Tool",
-            "desc": "Manage encrypted local profile TOTP keys cleanly."
+            "desc": "Manage encrypted local profile TOTP keys cleanly from the cloud sandbox."
         }
     };
 
     function renderHub() {
         const container = document.getElementById('hubContainer');
+        
         Object.keys(systemApps).forEach(key => {
             const app = systemApps[key];
             const bubble = document.createElement('div');
             bubble.className = 'bubble';
+            
             bubble.innerHTML = `
                 <span class="shortcut">/${key}</span> → Launch the 
                 <a href="/p/${key}">${app.title}</a> to ${app.desc}
