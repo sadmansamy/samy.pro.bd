@@ -10,24 +10,26 @@
             --card: #ffffff; 
             --primary: #0b57d0; 
             --text: #1a1c1e; 
-            --bg-chat: #e1dbd6; 
+            --bg-chat: #e1dbd6; /* Perfect Tan Tint */
             --bubble-left: #ffffff;
             --link-color: #00488d;
         }
         
         body { 
             font-family: 'Segoe UI', -apple-system, system-ui, sans-serif; 
-            background: var(--bg); 
+            background-color: var(--bg); 
             color: var(--text); 
             display: flex; 
             justify-content: center; 
             padding: 0; 
             margin: 0; 
             min-height: 100vh;
-            transition: background 0.2s;
+            /* Core Background Rule applied globally at body level */
+            background-repeat: repeat;
+            background-position: top center;
         }
 
-        /* --- GENERATOR LAYOUT STYLE --- */
+        /* --- GENERATOR DASHBOARD LAYOUT --- */
         .generator-view {
             display: flex;
             justify-content: center;
@@ -58,9 +60,6 @@
             flex-direction: column;
             gap: 12px;
             overflow-y: auto;
-            background-color: var(--bg-chat);
-            background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png');
-            background-blend-mode: overlay;
             scroll-behavior: smooth;
         }
         .service-msg {
@@ -136,7 +135,8 @@
         if (view === 'links') {
             gen.style.display = 'none';
             chat.style.display = 'flex';
-            // Set the body background pattern properties when entering chat view
+            
+            // Apply the background parameters cleanly to the master body layer
             document.body.style.backgroundColor = 'var(--bg-chat)';
             document.body.style.backgroundImage = "url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png')";
             document.body.style.backgroundBlendMode = 'overlay';
@@ -144,9 +144,11 @@
         } else {
             chat.style.display = 'none';
             gen.style.display = 'flex';
-            // Clear body background overrides when returning to dashboard mode
+            
+            // Cleanly restore default dashboard background properties
             document.body.style.backgroundColor = 'var(--bg)';
             document.body.style.backgroundImage = 'none';
+            document.body.style.backgroundBlendMode = 'normal';
         }
     }
 
@@ -156,11 +158,10 @@
 
         let existingKeys = [];
         try {
-            // Note: Fetches from the site's root directory file
             const response = await fetch('/shorturl.json?t=' + Date.now());
             const data = await response.json();
             existingKeys = Object.keys(data);
-        } catch (e) { console.log("New file setup configuration."); }
+        } catch (e) { console.log("New data log stream configured."); }
 
         let code = '';
         let isUnique = false;
@@ -180,24 +181,21 @@
 
     async function loadChatMessages() {
         const chat = document.getElementById('chatContainer');
-        chat.innerHTML = `<div class="service-msg">Loading live redirect configuration data...</div>`;
+        chat.innerHTML = `<div class="service-msg">Fetching database channels...</div>`;
         
         try {
-            // Adjusted fetch location rule to make sure it reads /shorturl.json from your root directory
             const response = await fetch('/shorturl.json?t=' + Date.now());
-            if (!response.ok) throw new Error("JSON file missing");
+            if (!response.ok) throw new Error("JSON profile configuration array dropped.");
             const data = await response.json();
             
             chat.innerHTML = '';
 
-            // Header banner return block
             const header = document.createElement('div');
             header.className = 'service-msg';
             header.innerText = "← Return to Generator Dashboard";
             header.onclick = () => toggleView('generator');
             chat.appendChild(header);
 
-            // Populate links into the structural view
             Object.keys(data).forEach(key => {
                 const destination = data[key];
                 if (!destination || destination === "https://") return;
@@ -209,12 +207,11 @@
             });
             
             if(Object.keys(data).length === 0) {
-                chat.innerHTML += `<div class="service-msg">No active short URLs found in config.</div>`;
+                chat.innerHTML += `<div class="service-msg">No active links maps parsed inside runtime layout.</div>`;
             }
             
         } catch(e) {
-            console.error(e);
-            chat.innerHTML = `<div class="service-msg" onclick="toggleView('generator')">Error reading /shorturl.json data source. Tap to head back.</div>`;
+            chat.innerHTML = `<div class="service-msg" onclick="toggleView('generator')">Error loading links. Tap to go back.</div>`;
         }
     }
 
@@ -234,7 +231,6 @@
         });
     }
 
-    // Direct parameter initialization check routing
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('view') === 'links') {
         toggleView('links');
