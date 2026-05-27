@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>SADMAN SAMY</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -17,6 +17,7 @@
             
             /* Brand Colors */
             --wa-color: #25D366;
+            --phone-color: #0ea5e9;
             --fb-color: #1877F2;
             --ig-color: #E4405F;
             --x-color: #000000;
@@ -39,7 +40,7 @@
 
         /* Main Card Container */
         .card-container {
-            position: relative; /* Crucial for positioning the home button properly */
+            position: relative;
             width: 100%;
             max-width: 440px;
             margin: 40px 20px;
@@ -52,7 +53,7 @@
             box-sizing: border-box;
         }
 
-        /* Fixed Top Right Home Button */
+        /* Top Right Home Button */
         .home-btn {
             position: absolute;
             top: 24px;
@@ -136,7 +137,7 @@
             transition: color 0.25s ease;
         }
 
-        /* SVG X Icon sizing fallback */
+        /* SVG X Icon styling */
         .contact-box .brand-icon svg {
             width: 20px;
             height: 20px;
@@ -171,9 +172,12 @@
             border-color: var(--text-main);
         }
 
-        /* Custom Hover Colors for Branding */
+        /* Brand Colors on Hover */
         .wa:hover { border-color: var(--wa-color); }
         .wa:hover .brand-icon, .wa:hover .label { color: var(--wa-color); }
+
+        .phone:hover { border-color: var(--phone-color); }
+        .phone:hover .brand-icon, .phone:hover .label { color: var(--phone-color); }
 
         .fb:hover { border-color: var(--fb-color); }
         .fb:hover .brand-icon, .fb:hover .label { color: var(--fb-color); }
@@ -182,7 +186,7 @@
         .ig:hover .brand-icon, .ig:hover .label { color: var(--ig-color); }
 
         .x-site:hover { border-color: var(--x-color); }
-        .x-site:hover .brand-icon .label { color: var(--x-color); }
+        .x-site:hover .label { color: var(--x-color); }
         .x-site:hover .brand-icon svg { fill: var(--x-color); }
 
         .yt:hover { border-color: var(--yt-color); }
@@ -190,6 +194,28 @@
 
         .mail:hover { border-color: var(--mail-color); }
         .mail:hover .brand-icon, .mail:hover .label { color: var(--mail-color); }
+
+        /* Mobile Optimization */
+        @media screen and (max-width: 480px) {
+            body {
+                background: #ffffff;
+                align-items: flex-start;
+            }
+            .card-container {
+                max-width: 100%;
+                width: 100%;
+                margin: 0;
+                padding: 40px 20px;
+                background: #ffffff;
+                box-shadow: none;
+                border: none;
+                border-radius: 0px;
+            }
+            .home-btn {
+                top: 20px;
+                right: 20px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -210,7 +236,15 @@
             <a class="contact-box wa" href="https://wa.me/8801611689999" target="_blank">
                 <div class="brand-icon"><i class="fa-brands fa-whatsapp"></i></div>
                 <div class="button-text">
-                    <span class="label">WhatsApp / Mobile</span>
+                    <span class="label">WhatsApp</span>
+                    <span class="value">01611689999</span>
+                </div>
+            </a>
+
+            <a class="contact-box phone" href="tel:+8801611689999">
+                <div class="brand-icon"><i class="fa-solid fa-phone"></i></div>
+                <div class="button-text">
+                    <span class="label">Mobile / Direct Call</span>
                     <span class="value">01611689999</span>
                 </div>
             </a>
