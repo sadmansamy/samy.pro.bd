@@ -25,7 +25,34 @@
             padding: 24px; 
             opacity: 0; 
             transition: opacity 0.4s ease-out; 
+            position: relative;
         }
+        
+        /* Top Right Profile Icon Button */
+        .profile-nav-btn {
+            position: absolute;
+            top: 24px;
+            right: 24px;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 2px solid var(--link);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            z-index: 10;
+            display: block;
+        }
+        .profile-nav-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .profile-nav-btn img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
         .container { 
             width: 100%; 
             max-width: 480px; 
@@ -118,9 +145,23 @@
         .bubble.fullclickable a { 
             pointer-events: none; 
         }
+
+        /* Responsive Layout Tweaks */
+        @media screen and (max-width: 480px) {
+            .profile-nav-btn {
+                top: 16px;
+                right: 16px;
+                width: 40px;
+                height: 40px;
+            }
+        }
     </style>
 </head>
 <body>
+
+    <a href="/" class="profile-nav-btn" title="Go to Root">
+        <img src="https://blogger.googleusercontent.com/img/a/AVvXsEi7x_YrBwRo0uBt9ZxzI4ZPN-nI-TlzV_4zbd-iAjh-7GflYvO3rT-PyMz9oaFEonIvUgy-wKcW8uhoGqMHTKkmErzudJFg-I7B3lytJGYaAHhKsGWBLUOcB51FPmS2JZk2Mm2F9b7J13mPF48s9z4xLl9K9L2ODrkk5pWCJPrcIvsGmL7KYZlMUbrYBqqv" alt="Profile Layout Root Access Button">
+    </a>
 
 <div class="container">
     <div class="header">samy.pro.bd</div>
