@@ -83,27 +83,32 @@
             color: #ffffff;
         }
 
-        /* Box-Shaped Save Contact Button (Top Left) */
-        .vcard-btn {
+        /* Box-Shaped Save Contact Text Button (Top Left) */
+        .vcard-text-btn {
             position: absolute;
             top: 24px;
             left: 24px;
-            width: 42px;
             height: 42px;
+            padding: 0 16px;
             background: var(--vcard-color);
             border: 1px solid var(--vcard-color);
-            border-radius: 10px; /* Sharp box design instead of circle */
+            border-radius: 12px;
             display: flex;
             justify-content: center;
             align-items: center;
+            gap: 8px;
             color: #ffffff;
             text-decoration: none;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
             box-shadow: 0 4px 10px rgba(0,0,0,0.15);
             transition: all 0.2s ease;
             z-index: 10;
         }
-        .vcard-btn:hover {
-            transform: scale(1.05);
+        .vcard-text-btn:hover {
+            transform: scale(1.03);
             background: #ffffff;
             color: var(--vcard-color);
             border-color: var(--vcard-color);
@@ -111,7 +116,7 @@
         
         /* Profile Section */
         .profile-section { 
-            margin-top: 15px;
+            margin-top: 25px; /* Added extra space since text button is wider than the circle icon */
             margin-bottom: 35px; 
         }
         .profile-avatar {
@@ -246,7 +251,7 @@
                 top: 20px;
                 right: 20px;
             }
-            .vcard-btn {
+            .vcard-text-btn {
                 top: 20px;
                 left: 20px;
             }
@@ -257,9 +262,10 @@
 
     <div class="card-container">
         
-        <!-- Box-Shaped Save Contact Button (Top Left) -->
-        <a href="sadman_samy.vcf" download="sadman_samy.vcf" class="vcard-btn" title="Save Contact">
+        <!-- Box-Shaped Save Contact Text Button (Top Left) -->
+        <a href="sadman_samy.vcf" download="Sadman_Samy.vcf" class="vcard-text-btn" title="Save Contact">
             <i class="fa-solid fa-user-plus"></i>
+            <span>Save Contact</span>
         </a>
 
         <!-- Home Button (Top Right) -->
