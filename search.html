@@ -8,26 +8,14 @@
     
     <style>
         :root {
-            --bg-color: #f4f5f6;
+            --bg-color: #f5f5f7;
             --surface-color: #ffffff;
             --text-main: #1d1d1f;
             --text-muted: #86868b;
             --accent-color: #0071e3;
             --border-color: #e8e8ed;
-            --shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
             --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --bg-color: #0b0b0c;
-                --surface-color: #161617;
-                --text-main: #f5f5f7;
-                --text-muted: #86868b;
-                --accent-color: #2997ff;
-                --border-color: #2d2d2f;
-                --shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-            }
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -69,7 +57,7 @@
 
         .search-bar-container:focus-within {
             border-color: var(--accent-color);
-            box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.15);
+            box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.12);
         }
 
         .search-icon {
@@ -164,7 +152,7 @@
             font-size: 18px;
             font-weight: 600;
             color: var(--accent-color);
-            background: rgba(0, 113, 227, 0.08);
+            background: rgba(0, 113, 227, 0.05);
             width: 100%;
             height: 100%;
             display: flex;
@@ -206,10 +194,9 @@
 <script>
     async function loadShortcuts() {
         try {
-            // Concurrent execution reading from both of your detached structural targets
             const [listResponse, imgResponse] = await Promise.all([
-                fetch('search_web_list.json'),
-                fetch('search_web_img.json')
+                fetch('p/search_web_list.json'),
+                fetch('p/search_web_img.json')
             ]);
 
             const webList = await listResponse.json();
@@ -219,9 +206,13 @@
             grid.innerHTML = '';
 
             webList.forEach(item => {
-                const name = item[0]; // Parses raw string index 0 as name
-                const destinationUrl = item[1]; // Parses raw string index 1 as url
-                const logoUrl = webImgs[name];
+                const name = item[0]; 
+                const destinationUrl = item[1]; 
+                let logoUrl = webImgs[name];
+
+                if (logoUrl && !logoUrl.startsWith('http://') && !logoUrl.startsWith('https://')) {
+                    logoUrl = '/image/' + logoUrl;
+                }
 
                 const anchor = document.createElement('a');
                 anchor.className = 'shortcut-item';
@@ -245,6 +236,7 @@
         }
     }
 
+    // Single follow-up question allowed under broad or ambiguous advising requests
     function getFallbackHtml(title) {
         return `<div class="icon-fallback">${title.trim().charAt(0)}</div>`;
     }
