@@ -145,10 +145,6 @@
             transition: all 0.2s ease;
             border: 1px solid var(--vcard-color);
         }
-        .fb-btn-primary:hover {
-            background: #1f2937;
-            transform: translateY(-1px);
-        }
 
         /* Message Button beside Save Contact */
         .fb-btn-secondary {
@@ -168,7 +164,6 @@
         }
         .fb-btn-secondary:hover {
             background: #e5e7eb;
-            transform: translateY(-1px);
         }
 
         /* Links Layout */
@@ -245,7 +240,7 @@
         .mail:hover { border-color: var(--mail-color); }
         .mail:hover .brand-icon, .mail:hover .label { color: var(--mail-color); }
 
-        /* ADVANCED SELECTOR: Completely strips and completely hides the floating launcher on all resolutions */
+        /* Hides Intergram's native bottom bubble while letting the widget run */
         div[id^="intergramRoot"] div[class*="intergram-chat-closed"],
         #intergramRoot .intergram-chat-closed,
         .intergram-chat-closed {
@@ -253,8 +248,6 @@
             opacity: 0 !important;
             visibility: hidden !important;
             pointer-events: none !important;
-            height: 0 !important;
-            width: 0 !important;
         }
 
         /* Mobile Optimization */
@@ -296,6 +289,7 @@
                 <a href="sadman_samy.vcf" download="Sadman_Samy.vcf" class="fb-btn-primary">
                     <i class="fa-solid fa-user-plus"></i> Save Contact
                 </a>
+                <!-- This is the button that will execute the open action -->
                 <button class="fb-btn-secondary" id="customMessageBtn" title="Message Direct">
                     <i class="fa-regular fa-comment-dots"></i>
                 </button>
@@ -372,61 +366,34 @@
         </div>
     </div>
 
-    <!-- Live Intergram Integration with Persistent States -->
     <script>
         window.intergramId = "6003288214"; 
-
         window.intergramCustomizations = {
             titleClosed: 'Chat with me!',
             titleOpen: 'Live Chat Panel',
             introMessage: 'Hi! Write a message below to chat live with Samy.',
-            autoResponse: 'Your message has been sent to Samy. Please wait here for his live reply!',
-            autoNoResponse: 'Samy is away from his desk. Leave your message here or contact via WhatsApp!',
+            autoResponse: 'Your message has been sent. Please wait here for a reply!',
             mainColor: '#111827', 
             alwaysUseFloatingButton: false 
         };
 
-        // Mutation Observer to force-kill the floating launcher if it regenerates dynamically
-        const observer = new MutationObserver(() => {
-            const bubbles = document.querySelectorAll('.intergram-chat-closed, [class*="intergram-chat-closed"]');
-            bubbles.forEach(b => b.remove());
-        });
-        observer.observe(document.body, { childList: true, subtree: true });
-
-        // Trigger action mapping to your secondary header icon layout
+        // This click handler checks for Intergram's elements safely every single time you tap your custom button
         document.getElementById('customMessageBtn').addEventListener('click', function() {
-            // Check if iframe exists, if not create a temporary click mechanism
-            let closedButton = document.querySelector('#intergramRoot .intergram-chat-closed') || document.querySelector('.intergram-chat-closed');
             const openedPanel = document.querySelector('#intergramRoot .intergram-chat-opened');
             
-            if (!closedButton && !openedPanel) {
-                // If it hasn't fully loaded in DOM yet, simulate window load hook
-                const tempBtn = document.createElement('div');
-                tempBtn.className = 'intergram-chat-closed';
-                document.body.appendChild(tempBtn);
-                closedButton = tempBtn;
-            }
-
-            if (closedButton && !openedPanel) {
-                closedButton.click();
-            } else if (openedPanel) {
+            if (openedPanel) {
+                // If it is already open, tapping the button toggles it closed
                 const closeBtn = openedPanel.querySelector('div h1').nextSibling || openedPanel.querySelector('button');
                 if (closeBtn) closeBtn.click();
-            }
-        });
-
-        // SESSION SAFE RECOVERY LOGIC (Maintains session loop on active tab switches up to 20 minutes)
-        window.addEventListener('blur', function() {
-            // Saves current state timestamps into storage cache to keep socket channel alive
-            localStorage.setItem('intergram_active_session', Date.now());
-        });
-
-        window.addEventListener('focus', function() {
-            const lastActive = localStorage.getItem('intergram_active_session');
-            if (lastActive && (Date.now() - lastActive < 1200000)) { // 20-minute safety threshold window
-                // Restores layout instance gracefully without cycling a hard drop refresh
-                const panel = document.querySelector('#intergramRoot .intergram-chat-opened');
-                if(panel) { panel.style.display = 'block'; }
+            } else {
+                // Find Intergram's hidden native trigger button and fire a click event on it
+                const nativeClosedBtn = document.querySelector('#intergramRoot .intergram-chat-closed') || 
+                                         document.querySelector('.intergram-chat-closed');
+                if (nativeClosedBtn) {
+                    nativeClosedBtn.click();
+                } else {
+                    console.log("Intergram iframe widget hasn't loaded in DOM yet.");
+                }
             }
         });
     </script>
