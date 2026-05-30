@@ -1,6 +1,6 @@
 {
   "short_name": "Samy Search",
-  "name": "Samy Search",
+  "name": "Samy Search Engine Hub",
   "icons": [
     {
       "src": "../icon-192.png",
@@ -16,6 +16,7 @@
     }
   ],
   "start_url": "/search/index.html",
+  "scope": "/search/",
   "background_color": "#f5f5f7",
   "theme_color": "#f5f5f7",
   "display": "standalone",
