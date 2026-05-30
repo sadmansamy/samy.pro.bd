@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Samy Search</title>
     <link href="https://samy.pro.bd/favicon.ico" rel="icon" type="image/x-icon" />
-    <link rel="manifest" href="/p/search_manifest.json">
+    <link rel="manifest" href="/search/manifest.json">
     <meta name="theme-color" content="#f5f5f7">
     
     <style>
@@ -30,9 +30,9 @@
             min-height: 100vh;
             display: flex; 
             flex-direction: column;
-            justify-content: flex-start; /* Fixed the massive top/bottom centering gap */
+            justify-content: flex-start;
             align-items: center; 
-            padding: 40px 16px 24px 16px; /* Optimized top padding for a clean mobile header flow */
+            padding: 40px 16px 24px 16px;
         }
 
         .workspace {
@@ -103,7 +103,6 @@
 
         .go-btn svg { width: 18px; height: 18px; fill: currentColor; }
 
-        /* Google-like History Popup Panel */
         .history-popup {
             position: absolute;
             top: 100%;
@@ -164,7 +163,6 @@
             color: var(--danger-color);
         }
 
-        /* Section Layouts */
         .section-container {
             width: 100%;
             display: flex;
@@ -300,7 +298,6 @@
             display: flex;
         }
 
-        /* Modal Structure Configuration */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -382,7 +379,6 @@
 <body>
 
 <div class="workspace">
-    <!-- Omnibar Wrap Section -->
     <div class="search-wrapper">
         <div class="search-bar-container">
             <div class="search-icon">
@@ -393,30 +389,24 @@
                 <svg viewBox="0 0 24 24"><path d="M5 13h11.86l-5.43 5.43 1.42 1.42L21.14 12l-8.29-8.29-1.42 1.42L16.86 11H5v2z"/></svg>
             </button>
         </div>
-
-        <!-- Dropdown Match list wrapper -->
         <div class="history-popup" id="historyPopup"></div>
     </div>
 
-    <!-- Main JSON Configured Grid Section -->
     <div class="section-container">
         <div class="shortcuts-grid" id="jsonShortcutsGrid"></div>
     </div>
 
-    <!-- Isolated Local Custom Grid Section -->
     <div class="section-container">
         <div class="section-title">Local</div>
         <div class="shortcuts-grid" id="localShortcutsGrid"></div>
     </div>
 </div>
 
-<!-- Modal Dialog Structure -->
 <div class="modal-overlay" id="addLinkModal">
     <div class="modal-card">
         <h3>Add Local Shortcut</h3>
         <input type="text" id="newTitle" placeholder="Site Name">
         <input type="text" id="newUrl" placeholder="URL (e.g., domain.com)">
-        <!-- Updated input placeholder below -->
         <input type="text" id="newImg" placeholder="Logo path (e.g. image.jpg or full URL)">
         <div class="modal-buttons">
             <button class="btn-cancel" onclick="toggleModal(false)">Cancel</button>
@@ -433,7 +423,6 @@
     const urlInput = document.getElementById('urlInput');
     const historyPopup = document.getElementById('historyPopup');
 
-    // Google-like History Mechanics
     function loadSearchHistory() {
         const storedHistory = localStorage.getItem('samy_search_history');
         if (storedHistory) searchHistory = JSON.parse(storedHistory);
@@ -497,7 +486,6 @@
         setTimeout(() => historyPopup.style.display = 'none', 200);
     });
 
-    // Shortcuts Engine Operations
     async function loadShortcuts() {
         const localData = localStorage.getItem('samy_local_shortcuts');
         if (localData) {
@@ -506,8 +494,8 @@
 
         try {
             const [listResponse, imgResponse] = await Promise.all([
-                fetch('/p/search_web_list.json'),
-                fetch('/p/search_web_img.json')
+                fetch('/search/weblist.json'),
+                fetch('/search/weblogo.json')
             ]);
             const webList = await listResponse.json();
             const webImgs = await imgResponse.json();
@@ -646,9 +634,11 @@
     });
 
     if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/p/search_sw.js', { scope: '/p/' })
-            .then(() => console.log('PWA Service Worker Loaded Profile Cleanly'))
-            .catch(err => console.log('SW Registration Error:', err));
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/search/sw.js')
+                .then(reg => console.log('PWA Service Worker Registered Successfully:', reg.scope))
+                .catch(err => console.error('SW Registration Failed:', err));
+        });
     }
 
     loadSearchHistory();
