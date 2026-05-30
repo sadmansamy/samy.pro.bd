@@ -1,4 +1,4 @@
-const CACHE_NAME = 'samy-search-v3';
+const CACHE_NAME = 'samy-search-v4';
 const ASSETS = [
   '/search/',
   '/search/index.html',
