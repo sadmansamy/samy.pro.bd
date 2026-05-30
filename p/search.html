@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Samy Search</title>
+    <title>SamySearch</title>
     <link href="https://samy.pro.bd/favicon.ico" rel="icon" type="image/x-icon" />
-    <link rel="manifest" href="search_manifest.json">
+    <link rel="manifest" href="/p/search_manifest.json">
     <meta name="theme-color" content="#f5f5f7">
     
     <style>
@@ -175,7 +175,6 @@
             text-overflow: ellipsis;
         }
 
-        /* Delete Action styling */
         .delete-btn {
             position: absolute;
             top: 2px;
@@ -200,7 +199,6 @@
             display: flex;
         }
 
-        /* Interactive configuration management layout panel */
         .manager-panel {
             background: var(--surface-color);
             border: 1px solid var(--border-color);
@@ -220,6 +218,11 @@
             border: 1px solid var(--border-color);
             border-radius: 10px;
             font-size: 14px;
+            outline: none;
+        }
+
+        .manager-panel input:focus {
+            border-color: var(--accent-color);
         }
 
         .manager-panel button {
@@ -273,8 +276,8 @@
         } else {
             try {
                 const [listResponse, imgResponse] = await Promise.all([
-                    fetch('p/search_web_list.json'),
-                    fetch('p/search_web_img.json')
+                    fetch('/p/search_web_list.json'),
+                    fetch('/p/search_web_img.json')
                 ]);
 
                 const webList = await listResponse.json();
@@ -337,7 +340,7 @@
         let url = document.getElementById('newUrl').value.trim();
         const img = document.getElementById('newImg').value.trim();
 
-        if (!name || !url) return alert('Name and URL are required!');
+        if (!name || !url) return;
 
         if (!/^https?:\/\//i.test(url)) {
             url = 'https://' + url;
@@ -383,9 +386,8 @@
         if (e.key === "Enter") navigateToSite();
     });
 
-    // PWA Service Worker Registration
     if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('search_sw.js')
+        navigator.serviceWorker.register('/p/search_sw.js', { scope: '/p/' })
             .then(() => console.log('PWA Service Worker Loaded Profile Cleanly'))
             .catch(err => console.log('SW Registration Error:', err));
     }
