@@ -55,7 +55,7 @@
             background: var(--surface-color);
             border: 1px solid var(--border-color);
             border-radius: 24px;
-            padding: 4px 8px 4px 20px;
+            padding: 4px 8px 4px 8px;
             box-shadow: var(--shadow);
             transition: var(--transition);
             position: relative;
@@ -67,14 +67,27 @@
             box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.12);
         }
 
-        .search-icon {
+        .search-icon-btn {
+            background: transparent;
+            border: none;
             color: var(--text-muted);
+            margin-left: 12px;
             margin-right: 14px;
             display: flex;
             align-items: center;
+            cursor: pointer;
+            outline: none;
+            padding: 8px;
+            border-radius: 50%;
+            transition: var(--transition);
+        }
+        
+        .search-icon-btn:hover {
+            background: var(--bg-color);
+            color: var(--accent-color);
         }
 
-        .search-icon svg { width: 20px; height: 20px; fill: currentColor; }
+        .search-icon-btn svg { width: 20px; height: 20px; fill: currentColor; }
 
         input { 
             flex: 1;
@@ -170,12 +183,45 @@
             gap: 12px;
         }
 
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding-left: 8px;
+        }
+
         .section-title {
             font-size: 14px;
             font-weight: 600;
             color: var(--text-muted);
-            padding-left: 8px;
             letter-spacing: -0.1px;
+        }
+
+        .edit-toggle-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            padding: 4px;
+            border-radius: 6px;
+            transition: var(--transition);
+        }
+
+        .edit-toggle-btn:hover {
+            color: var(--accent-color);
+            background: rgba(0, 113, 227, 0.05);
+        }
+
+        .edit-toggle-btn.active {
+            color: var(--accent-color);
+        }
+
+        .edit-toggle-btn svg {
+            width: 14px;
+            height: 14px;
+            fill: currentColor;
         }
 
         .shortcuts-grid {
@@ -294,7 +340,8 @@
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
 
-        .shortcut-item:hover .delete-btn {
+        /* Show delete buttons strictly via active parent toggle class */
+        .edit-mode .delete-btn {
             display: flex;
         }
 
@@ -381,24 +428,30 @@
 <div class="workspace">
     <div class="search-wrapper">
         <div class="search-bar-container">
-            <div class="search-icon">
+            <button class="search-icon-btn" onclick="navigateToCustomPath()" title="Search relative directory path">
                 <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
-            </div>
+            </button>
             <input type="text" id="urlInput" placeholder="Search Google or type URL" inputmode="search" autocomplete="off" spellcheck="false" autofocus>
-            <button class="go-btn" onclick="navigateToSite()">
+            <button class="go-btn" onclick="navigateToSite()" title="Navigate">
                 <svg viewBox="0 0 24 24"><path d="M5 13h11.86l-5.43 5.43 1.42 1.42L21.14 12l-8.29-8.29-1.42 1.42L16.86 11H5v2z"/></svg>
             </button>
         </div>
         <div class="history-popup" id="historyPopup"></div>
     </div>
 
-    <div class="section-container">
-        <div class="section-title">Bookmarks</div>
+    <!-- Nameless Bookmark Section Layout -->
+    <div class="section-container" style="margin-top: 4px;">
         <div class="shortcuts-grid" id="jsonShortcutsGrid"></div>
     </div>
 
+    <!-- Local Layout Grid with Functional Pen Icon Editing Trigger -->
     <div class="section-container">
-        <div class="section-title">Local</div>
+        <div class="section-header">
+            <div class="section-title">Local</div>
+            <button class="edit-toggle-btn" id="editToggleBtn" onclick="toggleEditMode()" title="Toggle edit mode">
+                <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+            </button>
+        </div>
         <div class="shortcuts-grid" id="localShortcutsGrid"></div>
     </div>
 </div>
@@ -420,9 +473,12 @@
     let jsonShortcuts = [];
     let localShortcuts = [];
     let searchHistory = [];
+    let isEditMode = false;
 
     const urlInput = document.getElementById('urlInput');
     const historyPopup = document.getElementById('historyPopup');
+    const localGrid = document.getElementById('localShortcutsGrid');
+    const editToggleBtn = document.getElementById('editToggleBtn');
 
     function loadSearchHistory() {
         const storedHistory = localStorage.getItem('samy_search_history');
@@ -506,7 +562,7 @@
                 return { name: name, url: item[1], img: webImgs[name] || "" };
             });
         } catch (error) {
-            console.error('Error fetching baseline JSON config records:', error);
+            console.error('Error fetching baseline configuration documents:', error);
         }
 
         renderAllGrids();
@@ -550,7 +606,6 @@
             jsonGrid.appendChild(createShortcutTile(item, index, false));
         });
 
-        const localGrid = document.getElementById('localShortcutsGrid');
         localGrid.innerHTML = '';
         localShortcuts.forEach((item, index) => {
             localGrid.appendChild(createShortcutTile(item, index, true));
@@ -566,6 +621,17 @@
             <div class="shortcut-title">Add Link</div>
         `;
         localGrid.appendChild(addTile);
+    }
+
+    function toggleEditMode() {
+        isEditMode = !isEditMode;
+        if (isEditMode) {
+            localGrid.classList.add('edit-mode');
+            editToggleBtn.classList.add('active');
+        } else {
+            localGrid.classList.remove('edit-mode');
+            editToggleBtn.classList.remove('active');
+        }
     }
 
     function getFallbackHtml(title) {
@@ -594,6 +660,7 @@
         localStorage.setItem('samy_local_shortcuts', JSON.stringify(localShortcuts));
         renderAllGrids();
         toggleModal(false);
+        if (isEditMode) localGrid.classList.add('edit-mode');
     }
 
     function deleteLocalShortcut(event, index) {
@@ -602,8 +669,10 @@
         localShortcuts.splice(index, 1);
         localStorage.setItem('samy_local_shortcuts', JSON.stringify(localShortcuts));
         renderAllGrids();
+        if (isEditMode) localGrid.classList.add('edit-mode');
     }
 
+    // Right side arrow engine trigger routing logic
     function navigateToSite() {
         const input = urlInput.value.trim();
         if (!input) return;
@@ -620,6 +689,21 @@
         }
     }
 
+    // Left side magnifying glass execution pattern rule execution logic
+    function navigateToCustomPath() {
+        const input = urlInput.value.trim();
+        if (!input) return;
+
+        saveSearchHistory(input);
+        
+        // Lowercases and clears any invalid directory or link mapping structures
+        const sanitizedInput = input.toLowerCase().replace(/[^a-z0-9-_]/g, '');
+        
+        if (sanitizedInput) {
+            window.location.href = "https://samy.pro.bd/" + sanitizedInput;
+        }
+    }
+
     urlInput.addEventListener("keypress", (e) => {
         if (e.key === "Enter") navigateToSite();
     });
@@ -627,7 +711,7 @@
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
             navigator.serviceWorker.register('/search/sw.js')
-                .then(reg => console.log('PWA Service Worker Registered Successfully:', reg.scope))
+                .then(reg => console.log('PWA Scope Configuration Verified:', reg.scope))
                 .catch(err => console.error('SW Registration Failed:', err));
         });
     }
