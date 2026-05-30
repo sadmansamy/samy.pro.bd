@@ -145,8 +145,12 @@
             transition: all 0.2s ease;
             border: 1px solid var(--vcard-color);
         }
+        .fb-btn-primary:hover {
+            background: #1f2937;
+            transform: translateY(-1px);
+        }
 
-        /* Message Button beside Save Contact */
+        /* Share Button beside Save Contact */
         .fb-btn-secondary {
             width: 44px;
             height: 44px;
@@ -164,6 +168,7 @@
         }
         .fb-btn-secondary:hover {
             background: #e5e7eb;
+            transform: translateY(-1px);
         }
 
         /* Links Layout */
@@ -240,16 +245,6 @@
         .mail:hover { border-color: var(--mail-color); }
         .mail:hover .brand-icon, .mail:hover .label { color: var(--mail-color); }
 
-        /* Hides Intergram's native bottom bubble while letting the widget run */
-        div[id^="intergramRoot"] div[class*="intergram-chat-closed"],
-        #intergramRoot .intergram-chat-closed,
-        .intergram-chat-closed {
-            display: none !important;
-            opacity: 0 !important;
-            visibility: hidden !important;
-            pointer-events: none !important;
-        }
-
         /* Mobile Optimization */
         @media screen and (max-width: 480px) {
             body {
@@ -289,9 +284,9 @@
                 <a href="sadman_samy.vcf" download="Sadman_Samy.vcf" class="fb-btn-primary">
                     <i class="fa-solid fa-user-plus"></i> Save Contact
                 </a>
-                <!-- This is the button that will execute the open action -->
-                <button class="fb-btn-secondary" id="customMessageBtn" title="Message Direct">
-                    <i class="fa-regular fa-comment-dots"></i>
+                <!-- Updated: Native Web Share Button -->
+                <button class="fb-btn-secondary" id="nativeShareBtn" title="Share Profile">
+                    <i class="fa-solid fa-share-nodes"></i>
                 </button>
             </div>
         </div>
@@ -367,6 +362,26 @@
     </div>
 
     <script>
+        // Native Web Share API Logic
+        document.getElementById('nativeShareBtn').addEventListener('click', async () => {
+            if (navigator.share) {
+                try {
+                    await navigator.share({
+                        title: 'SADMAN SAMY',
+                        text: 'Check out Sadman Samy\'s digital business card.',
+                        url: window.location.href
+                    });
+                } catch (err) {
+                    console.log('Share cancelled or failed:', err);
+                }
+            } else {
+                // Fallback if browser doesn't support native web sharing (like old desktop browsers)
+                navigator.clipboard.writeText(window.location.href);
+                alert('Profile link copied to clipboard!');
+            }
+        });
+
+        // Default Intergram configuration (Letting it run natively)
         window.intergramId = "6003288214"; 
         window.intergramCustomizations = {
             titleClosed: 'Chat with me!',
@@ -374,28 +389,8 @@
             introMessage: 'Hi! Write a message below to chat live with Samy.',
             autoResponse: 'Your message has been sent. Please wait here for a reply!',
             mainColor: '#111827', 
-            alwaysUseFloatingButton: false 
+            alwaysUseFloatingButton: true // Restored back to true for default launcher placement
         };
-
-        // This click handler checks for Intergram's elements safely every single time you tap your custom button
-        document.getElementById('customMessageBtn').addEventListener('click', function() {
-            const openedPanel = document.querySelector('#intergramRoot .intergram-chat-opened');
-            
-            if (openedPanel) {
-                // If it is already open, tapping the button toggles it closed
-                const closeBtn = openedPanel.querySelector('div h1').nextSibling || openedPanel.querySelector('button');
-                if (closeBtn) closeBtn.click();
-            } else {
-                // Find Intergram's hidden native trigger button and fire a click event on it
-                const nativeClosedBtn = document.querySelector('#intergramRoot .intergram-chat-closed') || 
-                                         document.querySelector('.intergram-chat-closed');
-                if (nativeClosedBtn) {
-                    nativeClosedBtn.click();
-                } else {
-                    console.log("Intergram iframe widget hasn't loaded in DOM yet.");
-                }
-            }
-        });
     </script>
     <script id="intergram" type="text/javascript" src="https://www.intergram.xyz/js/widget.js"></script>
 </body>
