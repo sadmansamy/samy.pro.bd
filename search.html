@@ -29,7 +29,7 @@
             flex-direction: column;
             justify-content: center; 
             align-items: center; 
-            padding: 20px;
+            padding: 16px;
             transition: var(--transition);
         }
 
@@ -38,7 +38,7 @@
             max-width: 680px;
             display: flex;
             flex-direction: column;
-            gap: 40px;
+            gap: 32px;
             align-items: center;
         }
 
@@ -96,18 +96,20 @@
 
         .go-btn svg { width: 18px; height: 18px; fill: currentColor; }
 
+        /* Grid Configuration */
         .shortcuts-grid {
             width: 100%;
             display: grid;
             grid-template-columns: repeat(5, 1fr);
-            gap: 20px;
+            gap: 12px;
         }
 
+        /* 4 items per line exactly on mobile viewports */
         @media (max-width: 600px) {
-            .shortcuts-grid { grid-template-columns: repeat(4, 1fr); gap: 16px; }
-        }
-        @media (max-width: 400px) {
-            .shortcuts-grid { grid-template-columns: repeat(3, 1fr); }
+            .shortcuts-grid { 
+                grid-template-columns: repeat(4, 1fr); 
+                gap: 8px; 
+            }
         }
 
         .shortcut-item {
@@ -118,7 +120,7 @@
             color: var(--text-main);
             transition: var(--transition);
             border-radius: 16px;
-            padding: 10px;
+            padding: 8px 4px;
         }
 
         .shortcut-item:hover {
@@ -128,28 +130,28 @@
         }
 
         .icon-container {
-            width: 56px;
-            height: 56px;
+            width: 52px;
+            height: 52px;
             background: var(--surface-color);
             border: 1px solid var(--border-color);
             border-radius: 14px;
             display: flex;
             justify-content: center;
             align-items: center;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             overflow: hidden;
             box-shadow: var(--shadow);
         }
 
         .icon-container img {
-            width: 28px;
-            height: 28px;
+            width: 26px;
+            height: 26px;
             object-fit: contain;
             border-radius: 4px;
         }
 
         .icon-fallback {
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 600;
             color: var(--accent-color);
             background: rgba(0, 113, 227, 0.05);
@@ -162,7 +164,7 @@
         }
 
         .shortcut-title {
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 500;
             color: var(--text-main);
             text-align: center;
@@ -236,7 +238,6 @@
         }
     }
 
-    // Single follow-up question allowed under broad or ambiguous advising requests
     function getFallbackHtml(title) {
         return `<div class="icon-fallback">${title.trim().charAt(0)}</div>`;
     }
