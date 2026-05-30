@@ -30,9 +30,9 @@
             min-height: 100vh;
             display: flex; 
             flex-direction: column;
-            justify-content: center; 
+            justify-content: flex-start; /* Fixed the massive top/bottom centering gap */
             align-items: center; 
-            padding: 16px;
+            padding: 40px 16px 24px 16px; /* Optimized top padding for a clean mobile header flow */
         }
 
         .workspace {
@@ -416,7 +416,8 @@
         <h3>Add Local Shortcut</h3>
         <input type="text" id="newTitle" placeholder="Site Name">
         <input type="text" id="newUrl" placeholder="URL (e.g., domain.com)">
-        <input type="text" id="newImg" placeholder="Logo path (e.g. image/fb.jpg or full URL)">
+        <!-- Updated input placeholder below -->
+        <input type="text" id="newImg" placeholder="Logo path (e.g. image.jpg or full URL)">
         <div class="modal-buttons">
             <button class="btn-cancel" onclick="toggleModal(false)">Cancel</button>
             <button class="btn-add" onclick="addShortcut()">Add</button>
@@ -525,17 +526,14 @@
     function parseLogoUrl(imgString, isLocalGrid) {
         if (!imgString) return "";
         
-        // If it's a full external URL, return it directly
         if (/^https?:\/\//i.test(imgString)) {
             return imgString;
         }
         
-        // If it's the old system JSON format and not local grid, prefix with /image/
         if (!isLocalGrid && !imgString.startsWith('/')) {
             return '/image/' + imgString;
         }
         
-        // For local grid input, if they type "image/fb.jpg", prefix with "/" to look from root
         if (isLocalGrid && !imgString.startsWith('/')) {
             return '/' + imgString;
         }
