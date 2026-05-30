@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Samy Search</title>
+    <link href="https://samy.pro.bd/favicon.ico" rel="icon" type="image/x-icon" />
+    <link rel="manifest" href="search_manifest.json">
+    <meta name="theme-color" content="#f5f5f7">
+    
+    <style>
+        :root {
+            --bg-color: #f5f5f7;
+            --surface-color: #ffffff;
+            --text-main: #1d1d1f;
+            --text-muted: #86868b;
+            --accent-color: #0071e3;
+            --border-color: #e8e8ed;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            --danger-color: #ff3b30;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+            background-color: var(--bg-color); 
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex; 
+            flex-direction: column;
+            justify-content: center; 
+            align-items: center; 
+            padding: 16px;
+        }
+
+        .workspace {
+            width: 100%;
+            max-width: 680px;
+            display: flex;
+            flex-direction: column;
+            gap: 32px;
+            align-items: center;
+        }
+
+        .search-wrapper { width: 100%; }
+
+        .search-bar-container {
+            display: flex;
+            align-items: center;
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 4px 8px 4px 20px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+
+        .search-bar-container:focus-within {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.12);
+        }
+
+        .search-icon {
+            color: var(--text-muted);
+            margin-right: 14px;
+            display: flex;
+            align-items: center;
+        }
+
+        .search-icon svg { width: 20px; height: 20px; fill: currentColor; }
+
+        input { 
+            flex: 1;
+            border: none;
+            background: transparent;
+            font-size: 17px; 
+            color: var(--text-main);
+            outline: none;
+            padding: 14px 0;
+            width: 100%;
+        }
+
+        .go-btn { 
+            background: var(--accent-color); 
+            color: white; 
+            border: none; 
+            border-radius: 18px; 
+            width: 44px;
+            height: 44px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer; 
+            transition: var(--transition);
+        }
+
+        .go-btn svg { width: 18px; height: 18px; fill: currentColor; }
+
+        .shortcuts-grid {
+            width: 100%;
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 12px;
+        }
+
+        @media (max-width: 600px) {
+            .shortcuts-grid { 
+                grid-template-columns: repeat(4, 1fr); 
+                gap: 8px; 
+            }
+        }
+
+        .shortcut-item {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: var(--text-main);
+            transition: var(--transition);
+            border-radius: 16px;
+            padding: 8px 4px;
+        }
+
+        .shortcut-item:hover {
+            background: var(--surface-color);
+            box-shadow: var(--shadow);
+            transform: translateY(-2px);
+        }
+
+        .icon-container {
+            width: 52px;
+            height: 52px;
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 8px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        .icon-container img {
+            width: 26px;
+            height: 26px;
+            object-fit: contain;
+            border-radius: 4px;
+        }
+
+        .icon-fallback {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--accent-color);
+            background: rgba(0, 113, 227, 0.05);
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-transform: uppercase;
+        }
+
+        .shortcut-title {
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--text-main);
+            text-align: center;
+            width: 100%;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Delete Action styling */
+        .delete-btn {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            width: 18px;
+            height: 18px;
+            background: var(--danger-color);
+            color: white;
+            border-radius: 50%;
+            border: none;
+            font-size: 10px;
+            font-weight: bold;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            z-index: 10;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .shortcut-item:hover .delete-btn {
+            display: flex;
+        }
+
+        /* Interactive configuration management layout panel */
+        .manager-panel {
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 16px;
+            width: 100%;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .manager-panel input {
+            flex: 1;
+            min-width: 140px;
+            padding: 10px 14px;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            font-size: 14px;
+        }
+
+        .manager-panel button {
+            background: var(--text-main);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .manager-panel button:hover { opacity: 0.9; }
+    </style>
+</head>
+<body>
+
+<div class="workspace">
+    <div class="search-wrapper">
+        <div class="search-bar-container">
+            <div class="search-icon">
+                <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+            </div>
+            <input type="text" id="urlInput" placeholder="Search Google or type URL" inputmode="search" autocomplete="off" spellcheck="false" autofocus>
+            <button class="go-btn" onclick="navigateToSite()">
+                <svg viewBox="0 0 24 24"><path d="M5 13h11.86l-5.43 5.43 1.42 1.42L21.14 12l-8.29-8.29-1.42 1.42L16.86 11H5v2z"/></svg>
+            </button>
+        </div>
+    </div>
+
+    <div class="shortcuts-grid" id="shortcutsLibrary"></div>
+
+    <div class="manager-panel">
+        <input type="text" id="newTitle" placeholder="Site Name">
+        <input type="text" id="newUrl" placeholder="URL (e.g., domain.com)">
+        <input type="text" id="newImg" placeholder="Logo filename or leave empty">
+        <button onclick="addShortcut()">Save Link</button>
+    </div>
+</div>
+
+<script>
+    let currentShortcuts = [];
+
+    async function loadShortcuts() {
+        const localData = localStorage.getItem('samy_shortcuts');
+        
+        if (localData) {
+            currentShortcuts = JSON.parse(localData);
+            renderShortcuts();
+        } else {
+            try {
+                const [listResponse, imgResponse] = await Promise.all([
+                    fetch('p/search_web_list.json'),
+                    fetch('p/search_web_img.json')
+                ]);
+
+                const webList = await listResponse.json();
+                const webImgs = await imgResponse.json();
+                
+                currentShortcuts = webList.map(item => {
+                    const name = item[0];
+                    return {
+                        name: name,
+                        url: item[1],
+                        img: webImgs[name] || ""
+                    };
+                });
+
+                saveToLocalStorage();
+                renderShortcuts();
+            } catch (error) {
+                console.error('Error fetching baseline configuration records:', error);
+            }
+        }
+    }
+
+    function renderShortcuts() {
+        const grid = document.getElementById('shortcutsLibrary');
+        grid.innerHTML = '';
+
+        currentShortcuts.forEach((item, index) => {
+            let logoUrl = item.img;
+
+            if (logoUrl && !logoUrl.startsWith('http://') && !logoUrl.startsWith('https://')) {
+                logoUrl = '/image/' + logoUrl;
+            }
+
+            const anchor = document.createElement('a');
+            anchor.className = 'shortcut-item';
+            anchor.href = item.url;
+
+            let iconContent = '';
+            if (logoUrl) {
+                iconContent = `<img src="${logoUrl}" alt="${item.name}" onerror="this.outerHTML=getFallbackHtml('${item.name}')">`;
+            } else {
+                iconContent = getFallbackHtml(item.name);
+            }
+
+            anchor.innerHTML = `
+                <button class="delete-btn" onclick="deleteShortcut(event, ${index})">×</button>
+                <div class="icon-container">${iconContent}</div>
+                <div class="shortcut-title">${item.name}</div>
+            `;
+            grid.appendChild(anchor);
+        });
+    }
+
+    function getFallbackHtml(title) {
+        return `<div class="icon-fallback">${title.trim().charAt(0)}</div>`;
+    }
+
+    function addShortcut() {
+        const name = document.getElementById('newTitle').value.trim();
+        let url = document.getElementById('newUrl').value.trim();
+        const img = document.getElementById('newImg').value.trim();
+
+        if (!name || !url) return alert('Name and URL are required!');
+
+        if (!/^https?:\/\//i.test(url)) {
+            url = 'https://' + url;
+        }
+
+        currentShortcuts.push({ name, url, img });
+        saveToLocalStorage();
+        renderShortcuts();
+
+        document.getElementById('newTitle').value = '';
+        document.getElementById('newUrl').value = '';
+        document.getElementById('newImg').value = '';
+    }
+
+    function deleteShortcut(event, index) {
+        event.preventDefault();
+        event.stopPropagation();
+        currentShortcuts.splice(index, 1);
+        saveToLocalStorage();
+        renderShortcuts();
+    }
+
+    function saveToLocalStorage() {
+        localStorage.setItem('samy_shortcuts', JSON.stringify(currentShortcuts));
+    }
+
+    function navigateToSite() {
+        const input = document.getElementById('urlInput').value.trim();
+        if (!input) return;
+
+        const urlPattern = /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([\/\w .-]*)*\/?$/i;
+
+        if (urlPattern.test(input)) {
+            let url = input;
+            if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+            window.location.href = url;
+        } else {
+            window.location.href = "https://www.google.com/search?q=" + encodeURIComponent(input);
+        }
+    }
+
+    document.getElementById('urlInput').addEventListener("keypress", (e) => {
+        if (e.key === "Enter") navigateToSite();
+    });
+
+    // PWA Service Worker Registration
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('search_sw.js')
+            .then(() => console.log('PWA Service Worker Loaded Profile Cleanly'))
+            .catch(err => console.log('SW Registration Error:', err));
+    }
+
+    document.addEventListener("DOMContentLoaded", loadShortcuts);
+</script>
+</body>
+</html>
