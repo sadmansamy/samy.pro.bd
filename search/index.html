@@ -340,7 +340,6 @@
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
 
-        /* Show delete buttons strictly via active parent toggle class */
         .edit-mode .delete-btn {
             display: flex;
         }
@@ -439,12 +438,12 @@
         <div class="history-popup" id="historyPopup"></div>
     </div>
 
-    <!-- Nameless Bookmark Section Layout -->
+    <!-- Nameless Bookmarks Section Grid Layout -->
     <div class="section-container" style="margin-top: 4px;">
         <div class="shortcuts-grid" id="jsonShortcutsGrid"></div>
     </div>
 
-    <!-- Local Layout Grid with Functional Pen Icon Editing Trigger -->
+    <!-- Local Shortcuts Section Grid Layout -->
     <div class="section-container">
         <div class="section-header">
             <div class="section-title">Local</div>
@@ -562,7 +561,7 @@
                 return { name: name, url: item[1], img: webImgs[name] || "" };
             });
         } catch (error) {
-            console.error('Error fetching baseline configuration documents:', error);
+            console.error('Error fetching baseline JSON config records:', error);
         }
 
         renderAllGrids();
@@ -672,7 +671,7 @@
         if (isEditMode) localGrid.classList.add('edit-mode');
     }
 
-    // Right side arrow engine trigger routing logic
+    // Right arrow navigation logic
     function navigateToSite() {
         const input = urlInput.value.trim();
         if (!input) return;
@@ -689,15 +688,15 @@
         }
     }
 
-    // Left side magnifying glass execution pattern rule execution logic
+    // Left magnifying glass path generation logic
     function navigateToCustomPath() {
         const input = urlInput.value.trim();
         if (!input) return;
 
         saveSearchHistory(input);
         
-        // Lowercases and clears any invalid directory or link mapping structures
-        const sanitizedInput = input.toLowerCase().replace(/[^a-z0-9-_]/g, '');
+        // Lowercases and retains directory forward slashes securely
+        const sanitizedInput = input.toLowerCase().replace(/[^a-z0-9-_\/]/g, '');
         
         if (sanitizedInput) {
             window.location.href = "https://samy.pro.bd/" + sanitizedInput;
@@ -711,7 +710,7 @@
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
             navigator.serviceWorker.register('/search/sw.js')
-                .then(reg => console.log('PWA Scope Configuration Verified:', reg.scope))
+                .then(reg => console.log('PWA Service Worker Registered Successfully:', reg.scope))
                 .catch(err => console.error('SW Registration Failed:', err));
         });
     }
