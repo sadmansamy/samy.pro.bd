@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SamySearch</title>
+    <title>Samy Search</title>
     <link href="https://samy.pro.bd/favicon.ico" rel="icon" type="image/x-icon" />
     <link rel="manifest" href="/p/search_manifest.json">
     <meta name="theme-color" content="#f5f5f7">
@@ -44,7 +44,10 @@
             align-items: center;
         }
 
-        .search-wrapper { width: 100%; }
+        .search-wrapper { 
+            width: 100%; 
+            position: relative;
+        }
 
         .search-bar-container {
             display: flex;
@@ -55,6 +58,8 @@
             padding: 4px 8px 4px 20px;
             box-shadow: var(--shadow);
             transition: var(--transition);
+            position: relative;
+            z-index: 100;
         }
 
         .search-bar-container:focus-within {
@@ -98,6 +103,68 @@
 
         .go-btn svg { width: 18px; height: 18px; fill: currentColor; }
 
+        /* Google-like History Popup Panel */
+        .history-popup {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            margin-top: 8px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+            z-index: 99;
+            overflow: hidden;
+            display: none;
+            padding: 8px 0;
+        }
+
+        .history-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        .history-item:hover {
+            background: var(--bg-color);
+        }
+
+        .history-content {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--text-main);
+            font-size: 15px;
+            flex: 1;
+        }
+
+        .history-clock-icon {
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+        }
+
+        .history-clock-icon svg { width: 16px; height: 16px; fill: currentColor; }
+
+        .history-delete-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 18px;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        .history-delete-btn:hover {
+            color: var(--danger-color);
+        }
+
+        /* Shortcuts Layout Configuration */
         .shortcuts-grid {
             width: 100%;
             display: grid;
@@ -122,6 +189,7 @@
             transition: var(--transition);
             border-radius: 16px;
             padding: 8px 4px;
+            cursor: pointer;
         }
 
         .shortcut-item:hover {
@@ -164,6 +232,25 @@
             text-transform: uppercase;
         }
 
+        /* Plus Icon Custom Layout Fallback Graphic */
+        .icon-plus {
+            font-size: 24px;
+            font-weight: 400;
+            color: var(--text-muted);
+            background: var(--border-color);
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: var(--transition);
+        }
+
+        .shortcut-item:hover .icon-plus {
+            background: rgba(0, 113, 227, 0.08);
+            color: var(--accent-color);
+        }
+
         .shortcut-title {
             font-size: 11px;
             font-weight: 500;
@@ -199,44 +286,83 @@
             display: flex;
         }
 
-        .manager-panel {
+        /* Modal Overlay Configuration */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            z-index: 1000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal-card {
             background: var(--surface-color);
             border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 16px;
+            border-radius: 20px;
+            padding: 24px;
             width: 100%;
-            box-shadow: var(--shadow);
+            max-width: 360px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
             display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
+            flex-direction: column;
+            gap: 14px;
+            animation: modalFadeIn 0.2s ease-out;
         }
 
-        .manager-panel input {
-            flex: 1;
-            min-width: 140px;
-            padding: 10px 14px;
+        @keyframes modalFadeIn {
+            from { transform: scale(0.95); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-card h3 {
+            font-size: 18px;
+            color: var(--text-main);
+            margin-bottom: 4px;
+        }
+
+        .modal-card input {
+            width: 100%;
+            padding: 12px 16px;
             border: 1px solid var(--border-color);
-            border-radius: 10px;
-            font-size: 14px;
+            border-radius: 12px;
+            font-size: 15px;
             outline: none;
+            background: var(--bg-color);
         }
 
-        .manager-panel input:focus {
+        .modal-card input:focus {
             border-color: var(--accent-color);
+            background: var(--surface-color);
         }
 
-        .manager-panel button {
-            background: var(--text-main);
-            color: white;
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 6px;
+        }
+
+        .modal-buttons button {
+            flex: 1;
+            padding: 12px;
             border: none;
-            padding: 10px 20px;
-            border-radius: 10px;
+            border-radius: 12px;
+            font-size: 15px;
             font-weight: 600;
             cursor: pointer;
             transition: var(--transition);
         }
 
-        .manager-panel button:hover { opacity: 0.9; }
+        .btn-add { background: var(--accent-color); color: white; }
+        .btn-cancel { background: var(--border-color); color: var(--text-main); }
+        .modal-buttons button:hover { opacity: 0.9; }
     </style>
 </head>
 <body>
@@ -252,21 +378,104 @@
                 <svg viewBox="0 0 24 24"><path d="M5 13h11.86l-5.43 5.43 1.42 1.42L21.14 12l-8.29-8.29-1.42 1.42L16.86 11H5v2z"/></svg>
             </button>
         </div>
+
+        <div class="history-popup" id="historyPopup"></div>
     </div>
 
     <div class="shortcuts-grid" id="shortcutsLibrary"></div>
+</div>
 
-    <div class="manager-panel">
+<div class="modal-overlay" id="addLinkModal">
+    <div class="modal-card">
+        <h3>Add Shortcut</h3>
         <input type="text" id="newTitle" placeholder="Site Name">
         <input type="text" id="newUrl" placeholder="URL (e.g., domain.com)">
         <input type="text" id="newImg" placeholder="Logo filename or leave empty">
-        <button onclick="addShortcut()">Save Link</button>
+        <div class="modal-buttons">
+            <button class="btn-cancel" onclick="toggleModal(false)">Cancel</button>
+            <button class="btn-add" onclick="addShortcut()">Add</button>
+        </div>
     </div>
 </div>
 
 <script>
     let currentShortcuts = [];
+    let searchHistory = [];
 
+    const urlInput = document.getElementById('urlInput');
+    const historyPopup = document.getElementById('historyPopup');
+
+    // History Pipeline Operations
+    function loadSearchHistory() {
+        const storedHistory = localStorage.getItem('samy_search_history');
+        if (storedHistory) {
+            searchHistory = JSON.parse(storedHistory);
+        }
+    }
+
+    function saveSearchHistory(query) {
+        if (!query) return;
+        searchHistory = searchHistory.filter(item => item !== query);
+        searchHistory.unshift(query);
+        if (searchHistory.length > 6) searchHistory.pop(); // Keep top 6 items
+        localStorage.setItem('samy_search_history', JSON.stringify(searchHistory));
+    }
+
+    function showHistoryPopup() {
+        if (searchHistory.length === 0) {
+            historyPopup.style.display = 'none';
+            return;
+        }
+
+        const currentVal = urlInput.value.trim().toLowerCase();
+        const filtered = searchHistory.filter(item => item.toLowerCase().includes(currentVal));
+
+        if (filtered.length === 0) {
+            historyPopup.style.display = 'none';
+            return;
+        }
+
+        historyPopup.innerHTML = '';
+        filtered.forEach(item => {
+            const div = document.createElement('div');
+            div.className = 'history-item';
+            div.onmousedown = () => {
+                urlInput.value = item;
+                navigateToSite();
+            };
+
+            div.innerHTML = `
+                <div class="history-content">
+                    <div class="history-clock-icon">
+                        <svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
+                    </div>
+                    <span>${item}</span>
+                </div>
+                <button class="history-delete-btn" onmousedown="deleteHistoryItem(event, '${item}')">×</button>
+            `;
+            historyPopup.appendChild(div);
+        });
+
+        historyPopup.style.display = 'block';
+    }
+
+    function deleteHistoryItem(event, item) {
+        event.preventDefault();
+        event.stopPropagation();
+        searchHistory = searchHistory.filter(i => i !== item);
+        localStorage.setItem('samy_search_history', JSON.stringify(searchHistory));
+        showHistoryPopup();
+        urlInput.focus();
+    }
+
+    // Input Handlers
+    urlInput.addEventListener('focus', showHistoryPopup);
+    urlInput.addEventListener('input', showHistoryPopup);
+    urlInput.addEventListener('blur', () => {
+        setTimeout(() => historyPopup.style.display = 'none', 200);
+    });
+
+    // Shortcuts Engine Operations
     async function loadShortcuts() {
         const localData = localStorage.getItem('samy_shortcuts');
         
@@ -329,10 +538,32 @@
             `;
             grid.appendChild(anchor);
         });
+
+        // Appends the modern interactive "+" tile at the end of the list matching the grid theme
+        const addTile = document.createElement('div');
+        addTile.className = 'shortcut-item';
+        addTile.onclick = () => toggleModal(true);
+        addTile.innerHTML = `
+            <div class="icon-container">
+                <div class="icon-plus">+</div>
+            </div>
+            <div class="shortcut-title">Add Link</div>
+        `;
+        grid.appendChild(addTile);
     }
 
     function getFallbackHtml(title) {
         return `<div class="icon-fallback">${title.trim().charAt(0)}</div>`;
+    }
+
+    function toggleModal(show) {
+        const modal = document.getElementById('addLinkModal');
+        modal.style.display = show ? 'flex' : 'none';
+        if (!show) {
+            document.getElementById('newTitle').value = '';
+            document.getElementById('newUrl').value = '';
+            document.getElementById('newImg').value = '';
+        }
     }
 
     function addShortcut() {
@@ -349,10 +580,7 @@
         currentShortcuts.push({ name, url, img });
         saveToLocalStorage();
         renderShortcuts();
-
-        document.getElementById('newTitle').value = '';
-        document.getElementById('newUrl').value = '';
-        document.getElementById('newImg').value = '';
+        toggleModal(false);
     }
 
     function deleteShortcut(event, index) {
@@ -368,8 +596,10 @@
     }
 
     function navigateToSite() {
-        const input = document.getElementById('urlInput').value.trim();
+        const input = urlInput.value.trim();
         if (!input) return;
+
+        saveSearchHistory(input);
 
         const urlPattern = /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([\/\w .-]*)*\/?$/i;
 
@@ -382,7 +612,7 @@
         }
     }
 
-    document.getElementById('urlInput').addEventListener("keypress", (e) => {
+    urlInput.addEventListener("keypress", (e) => {
         if (e.key === "Enter") navigateToSite();
     });
 
@@ -392,6 +622,8 @@
             .catch(err => console.log('SW Registration Error:', err));
     }
 
+    // Initialize layout hooks
+    loadSearchHistory();
     document.addEventListener("DOMContentLoaded", loadShortcuts);
 </script>
 </body>
