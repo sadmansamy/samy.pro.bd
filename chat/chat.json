@@ -3,10 +3,26 @@
 ["https://samy.pro.bd/chat/movie", "l"],
 ["https://samy.pro.bd/chat/app", "l"],
 ["https://samy.pro.bd/chat/anime", "l"],
+
+
 ["WiFi", "m"],
   ["http://192.168.0.1/#accessControl http://192.168.0.1/#dhcpServerAdv https://myswift.amberit.com.bd/SignIn.aspx", "r"],
+
+
 ["https://tplinkwifi.net http://192.168.2.42/#accessControl http://192.168.2.42/#dhcpServerAdv https://myswift.amberit.com.bd/SignIn.aspx", "r"],
-  ["[Movies](https://samy.pro.bd/chat/movies/)", "l"],
+
+
+
+
+["SIP Call User Panel", "m"],
+["https://amarip.net/", "r"],
+["https://webvoice.net/", "r"],
+["https://icctalk.com/", "r"],
+["https://sip.italk.com.bd/iconiptsp/", "r"],
+["https://iptsp.pmcon.net/portal/login", "r"],
+  
+
+  
   ["chat4", "r"],
   ["chat5", "l"],
   ["chat6", "r"],
@@ -21,14 +37,6 @@
   ["chat15", "l"],
   ["chat16", "r"],
   ["chat17", "l"],
-  ["chat18", "r"],
-
-
-["SIP Call User Panel", "m"],
-["https://amarip.net/", "r"],
-["https://webvoice.net/", "r"],
-["https://icctalk.com/", "r"],
-["https://sip.italk.com.bd/iconiptsp/", "r"],
-["https://iptsp.pmcon.net/portal/login", "r"]
+  ["chat18", "r"]
 
 ]
