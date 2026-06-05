@@ -11,11 +11,11 @@ jobs:
 
       - name: Update file
         run: |
-          echo '${{ github.event.client_payload.data }}' > data.json
+          echo '${{ github.event.client_payload.data }}' > search/new_web.json
         env:
           GITHUB_TOKEN: ${{ secrets.MY_TOKEN }}
 
       - uses: stefanzweifel/git-auto-commit-action@v4
         with:
-          commit_message: "Update data via API"
-          file_pattern: data.json
+          commit_message: "Admin Update: Website Info"
+          file_pattern: search/new_web.json
