@@ -12,6 +12,8 @@ jobs:
       - name: Update file
         run: |
           echo '${{ github.event.client_payload.data }}' > data.json
+        env:
+          GITHUB_TOKEN: ${{ secrets.MY_TOKEN }}
 
       - uses: stefanzweifel/git-auto-commit-action@v4
         with:
