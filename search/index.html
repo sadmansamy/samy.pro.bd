@@ -395,6 +395,7 @@
         }
 
         .modal-card h3 { font-size: 18px; color: var(--text-main); margin-bottom: 4px; }
+        
         .modal-card input, .modal-card select {
             width: 100%;
             padding: 12px 16px;
@@ -404,6 +405,67 @@
             outline: none;
             background: var(--bg-color);
             color: var(--text-main);
+        }
+
+        /* Custom Selector UI Layout */
+        .custom-select-list {
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            overflow: hidden;
+        }
+
+        .custom-select-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 16px;
+            cursor: pointer;
+            transition: var(--transition);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .custom-select-item:last-child { border-bottom: none; }
+        .custom-select-item:hover { background: var(--surface-color); }
+
+        .custom-select-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        .custom-select-logo {
+            width: 22px;
+            height: 22px;
+            object-fit: contain;
+        }
+
+        .custom-select-radio {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            border: 2px solid var(--text-muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+
+        .custom-select-item.selected .custom-select-radio {
+            border-color: var(--accent-color);
+        }
+
+        .custom-select-item.selected .custom-select-radio::after {
+            content: '';
+            width: 10px;
+            height: 10px;
+            background: var(--accent-color);
+            border-radius: 50%;
+            display: block;
         }
 
         .file-upload-label {
@@ -469,7 +531,6 @@
     <div class="search-wrapper">
         <div class="search-bar-container">
             <button class="search-icon-btn" id="dynamicEngineBtn" onclick="navigateToCustomPath()" title="Search relative directory path">
-                <!-- Fallback fallback standard path icon until script initializes dynamic webp mapping -->
                 <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
             </button>
             <input type="text" id="urlInput" placeholder="Search or type URL" inputmode="search" autocomplete="off" spellcheck="false">
@@ -498,7 +559,6 @@
     </div>
 </div>
 
-<!-- Add Link Modal -->
 <div class="modal-overlay" id="addLinkModal">
     <div class="modal-card">
         <h3>Add Local Shortcut</h3>
@@ -515,7 +575,6 @@
     </div>
 </div>
 
-<!-- Settings Panel Modal -->
 <div class="modal-overlay" id="settingsModal">
     <div class="modal-card">
         <h3>Settings</h3>
@@ -530,12 +589,36 @@
 
         <div class="setting-section">
             <div class="setting-label">Default Search Engine</div>
-            <select id="engineSelect" onchange="changeEngine(this.value)">
-                <option value="google">Google</option>
-                <option value="brave">Brave Search</option>
-                <option value="duckduckgo">DuckDuckGo</option>
-                <option value="bing">Bing</option>
-            </select>
+            <div class="custom-select-list" id="customEngineSelector">
+                <div class="custom-select-item" onclick="selectEngine('google')" data-engine="google">
+                    <div class="custom-select-left">
+                        <img src="google.webp" class="custom-select-logo" alt="">
+                        <span>Google</span>
+                    </div>
+                    <div class="custom-select-radio"></div>
+                </div>
+                <div class="custom-select-item" onclick="selectEngine('brave')" data-engine="brave">
+                    <div class="custom-select-left">
+                        <img src="brave.webp" class="custom-select-logo" alt="">
+                        <span>Brave Search</span>
+                    </div>
+                    <div class="custom-select-radio"></div>
+                </div>
+                <div class="custom-select-item" onclick="selectEngine('duckduckgo')" data-engine="duckduckgo">
+                    <div class="custom-select-left">
+                        <img src="duckduckgo.webp" class="custom-select-logo" alt="">
+                        <span>DuckDuckGo</span>
+                    </div>
+                    <div class="custom-select-radio"></div>
+                </div>
+                <div class="custom-select-item" onclick="selectEngine('bing')" data-engine="bing">
+                    <div class="custom-select-left">
+                        <img src="bing.webp" class="custom-select-logo" alt="">
+                        <span>Bing</span>
+                    </div>
+                    <div class="custom-select-radio"></div>
+                </div>
+            </div>
         </div>
 
         <div class="setting-section">
@@ -572,7 +655,6 @@
         bing: "https://www.bing.com/search?q="
     };
 
-    // Maps each engine to your exact webp files shown in your screenshot
     const engineLogos = {
         google: "google.webp",
         brave: "brave.webp",
@@ -624,8 +706,7 @@
         updateMetaThemeColor();
 
         currentEngine = localStorage.getItem('samy_engine') || 'google';
-        document.getElementById('engineSelect').value = currentEngine;
-        updateSearchBarLogo();
+        updateActiveEngineUI(currentEngine);
     }
 
     function updateMetaThemeColor() {
@@ -640,19 +721,31 @@
         updateMetaThemeColor();
     }
 
-    function changeEngine(val) {
+    // Handles picking an engine from the custom logo menu list
+    function selectEngine(val) {
         currentEngine = val;
         localStorage.setItem('samy_engine', val);
+        updateActiveEngineUI(val);
+    }
+
+    function updateActiveEngineUI(val) {
+        // 1. Update active state radio dots in menu list
+        document.querySelectorAll('.custom-select-item').forEach(item => {
+            if (item.getAttribute('data-engine') === val) {
+                item.classList.add('selected');
+            } else {
+                item.classList.remove('selected');
+            }
+        });
+        // 2. Update search bar input dynamic icon token
         updateSearchBarLogo();
     }
 
-    // Updates the search bar left button to show your custom webp logo files
     function updateSearchBarLogo() {
         const logoFile = engineLogos[currentEngine] || "google.webp";
-        dynamicEngineBtn.innerHTML = `<img src="${logoFile}" alt="${currentEngine} logo" onerror="resetSearchBarIcon()">`;
+        dynamicEngineBtn.innerHTML = `<img src="${logoFile}" alt="${currentEngine}" onerror="resetSearchBarIcon()">`;
     }
 
-    // Fallback if the image doesn't load
     function resetSearchBarIcon() {
         dynamicEngineBtn.innerHTML = `<svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>`;
     }
