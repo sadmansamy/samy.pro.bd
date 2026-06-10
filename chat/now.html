@@ -53,6 +53,7 @@
             -webkit-overflow-scrolling: touch;
         }
 
+        /* Fixed structural design layout for optimal time positioning without text collisions */
         .bubble { 
             max-width: 85%; 
             padding: 8px 12px; 
@@ -325,7 +326,7 @@
             }
         }
 
-        // Injected welcome module containing structural action controls inside the message log
+        // Integrated welcome message containing input action controls directly inside the chat timeline
         function appendWelcomeWizard(chatElement) {
             const dateDiv = document.createElement('div');
             dateDiv.className = 'middle';
@@ -343,18 +344,16 @@
             
             const currentName = localStorage.getItem("samy_chat_username");
             if (currentName) {
-                textSpan.innerText = `Welcome back! Your registered outgoing chat name is currently set to: **${currentName}**`;
+                textSpan.innerHTML = `Welcome back! Your registered outgoing name is currently set to: <b>${currentName}</b>`;
             } else {
                 textSpan.innerText = "Hello! Please take a quick second to choose a name below before sending your first message.";
             }
             container.appendChild(textSpan);
 
-            // Action button structure
             const actionBtn = document.createElement('button');
             actionBtn.className = 'setup-btn';
             actionBtn.innerText = currentName ? "✏️ Edit Name" : "✨ Set Name";
             
-            // Inline setup form fields
             const inputZone = document.createElement('div');
             inputZone.className = 'setup-input-zone';
             
@@ -368,7 +367,6 @@
             saveBtn.style.margin = "0";
             saveBtn.innerText = "Save";
 
-            // Click handling loops
             actionBtn.onclick = (e) => {
                 e.stopPropagation();
                 actionBtn.style.display = 'none';
@@ -412,7 +410,7 @@
             const messages = JSON.parse(localStorage.getItem("samy_chat_cache")) || [];
             chat.innerHTML = ''; 
 
-            // Always display our integrated welcome configuration card right at the very top of the window
+            // Initialize wizard card at the beginning of the timeline layout
             appendWelcomeWizard(chat);
 
             let lastDateLabel = "Today"; 
@@ -510,14 +508,10 @@
             if (!rawMessage) return;
 
             const savedName = localStorage.getItem("samy_chat_username");
-            let outboundPayloadText = rawMessage;
-
-            if (savedName) {
-                outboundPayloadText = `${savedName}: ${rawMessage}`;
-            }
-
+            
+            // 1. Save ONLY the clean raw message to the local browser chat interface log
             const messages = JSON.parse(localStorage.getItem("samy_chat_cache")) || [];
-            messages.push([outboundPayloadText, "user", Date.now()]);
+            messages.push([rawMessage, "user", Date.now()]);
             localStorage.setItem("samy_chat_cache", JSON.stringify(messages));
 
             loadMessages();
@@ -526,15 +520,22 @@
             const chat = document.getElementById('chat');
             setTimeout(() => { chat.scrollTop = chat.scrollHeight; }, 30);
 
+            // 2. Format the payload for Telegram with an empty line gap (\n\n)
+            let telegramPayloadText = rawMessage;
+            if (savedName) {
+                telegramPayloadText = `${savedName}\n\n${rawMessage}`;
+            }
+
+            // 3. Transmit the formatted text safely over to Telegram API endpoints
             const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
             fetch(url, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     chat_id: TELEGRAM_CHAT_ID,
-                    text: outboundPayloadText
+                    text: telegramPayloadText
                 })
-            }).catch(err => console.error("Telegram channel network drop:", err));
+            }).catch(err => console.error("Telegram network endpoint drop:", err));
         }
 
         loadMessages();
