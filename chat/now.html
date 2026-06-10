@@ -53,7 +53,6 @@
             -webkit-overflow-scrolling: touch;
         }
 
-        /* Fixed structural design layout for optimal time positioning without text collisions */
         .bubble { 
             max-width: 85%; 
             padding: 8px 12px; 
@@ -91,6 +90,43 @@
             align-self: flex-start; 
             background-color: var(--bubble-left); 
             border-bottom-left-radius: 4px; 
+        }
+
+        /* Specialized setup block element styling */
+        .setup-card {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 8px;
+        }
+
+        .setup-btn {
+            background-color: var(--tg-blue);
+            color: white;
+            border: none;
+            padding: 6px 14px;
+            font-size: 13px;
+            font-weight: 700;
+            border-radius: 14px;
+            cursor: pointer;
+            margin-top: 4px;
+            transition: opacity 0.1s;
+        }
+        .setup-btn:active { opacity: 0.8; }
+
+        .setup-input-zone {
+            display: none;
+            gap: 6px;
+            width: 100%;
+            margin-top: 4px;
+        }
+        .setup-input-zone input {
+            border: 1px solid #ccc;
+            border-radius: 12px;
+            padding: 4px 10px;
+            font-size: 14px;
+            outline: none;
+            flex: 1;
         }
 
         .middle {
@@ -252,20 +288,6 @@
         let selectedMessageIndex = null; 
         let touchTimer = null; 
 
-        // Prompt user for name on first boot setup (Optional)
-        function checkUserIdentity() {
-            if (!localStorage.getItem("samy_chat_username")) {
-                setTimeout(() => {
-                    let name = prompt("Enter your name (Optional):");
-                    if (name && name.trim() !== "") {
-                        localStorage.setItem("samy_chat_username", name.trim());
-                    } else {
-                        localStorage.setItem("samy_chat_username", "Anonymous");
-                    }
-                }, 400);
-            }
-        }
-
         function linkify(text) {
             const hiddenLinkPattern = /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g;
             text = text.replace(hiddenLinkPattern, '<a href="$2" target="_blank">$1</a>');
@@ -303,6 +325,86 @@
             }
         }
 
+        // Injected welcome module containing structural action controls inside the message log
+        function appendWelcomeWizard(chatElement) {
+            const dateDiv = document.createElement('div');
+            dateDiv.className = 'middle';
+            dateDiv.innerText = "Today";
+            chatElement.appendChild(dateDiv);
+
+            const div = document.createElement('div');
+            div.className = 'bubble left';
+
+            const container = document.createElement('div');
+            container.className = 'setup-card';
+
+            const textSpan = document.createElement('span');
+            textSpan.className = 'bubble-text';
+            
+            const currentName = localStorage.getItem("samy_chat_username");
+            if (currentName) {
+                textSpan.innerText = `Welcome back! Your registered outgoing chat name is currently set to: **${currentName}**`;
+            } else {
+                textSpan.innerText = "Hello! Please take a quick second to choose a name below before sending your first message.";
+            }
+            container.appendChild(textSpan);
+
+            // Action button structure
+            const actionBtn = document.createElement('button');
+            actionBtn.className = 'setup-btn';
+            actionBtn.innerText = currentName ? "✏️ Edit Name" : "✨ Set Name";
+            
+            // Inline setup form fields
+            const inputZone = document.createElement('div');
+            inputZone.className = 'setup-input-zone';
+            
+            const nameInput = document.createElement('input');
+            nameInput.type = "text";
+            nameInput.placeholder = "Enter your name...";
+            nameInput.value = currentName || "";
+            
+            const saveBtn = document.createElement('button');
+            saveBtn.className = 'setup-btn';
+            saveBtn.style.margin = "0";
+            saveBtn.innerText = "Save";
+
+            // Click handling loops
+            actionBtn.onclick = (e) => {
+                e.stopPropagation();
+                actionBtn.style.display = 'none';
+                inputZone.style.display = 'flex';
+                nameInput.focus();
+            };
+
+            saveBtn.onclick = (e) => {
+                e.stopPropagation();
+                const val = nameInput.value.trim();
+                if(val) {
+                    localStorage.setItem("samy_chat_username", val);
+                } else {
+                    localStorage.removeItem("samy_chat_username");
+                }
+                loadMessages();
+            };
+
+            nameInput.onkeypress = (e) => {
+                if(e.key === 'Enter') saveBtn.click();
+            };
+
+            inputZone.appendChild(nameInput);
+            inputZone.appendChild(saveBtn);
+            container.appendChild(actionBtn);
+            container.appendChild(inputZone);
+            div.appendChild(container);
+
+            const timeSpan = document.createElement('span');
+            timeSpan.className = 'time-stamp';
+            timeSpan.innerText = formatTime(Date.now());
+            div.appendChild(timeSpan);
+
+            chatElement.appendChild(div);
+        }
+
         function loadMessages() {
             const chat = document.getElementById('chat');
             const isAtBottom = chat.scrollHeight - chat.clientHeight <= chat.scrollTop + 100;
@@ -310,15 +412,10 @@
             const messages = JSON.parse(localStorage.getItem("samy_chat_cache")) || [];
             chat.innerHTML = ''; 
 
-            if (messages.length === 0) {
-                const div = document.createElement('div');
-                div.className = 'middle';
-                div.innerText = "No messages here yet. Send a message to get started!";
-                chat.appendChild(div);
-                return;
-            }
+            // Always display our integrated welcome configuration card right at the very top of the window
+            appendWelcomeWizard(chat);
 
-            let lastDateLabel = "";
+            let lastDateLabel = "Today"; 
 
             messages.forEach((msg, index) => {
                 const text = msg[0];
@@ -337,7 +434,6 @@
                 const div = document.createElement('div');
                 div.className = 'bubble ' + (type === 'user' ? 'right' : 'left');
 
-                // Structured text frame inside layout
                 const textSpan = document.createElement('span');
                 textSpan.className = 'bubble-text';
                 textSpan.innerHTML = linkify(text);
@@ -413,12 +509,10 @@
 
             if (!rawMessage) return;
 
-            // Fetch stored sender metadata from active instance
             const savedName = localStorage.getItem("samy_chat_username");
             let outboundPayloadText = rawMessage;
 
-            // Append name cleanly onto layout string if valid identity is set
-            if (savedName && savedName !== "Anonymous") {
+            if (savedName) {
                 outboundPayloadText = `${savedName}: ${rawMessage}`;
             }
 
@@ -432,7 +526,6 @@
             const chat = document.getElementById('chat');
             setTimeout(() => { chat.scrollTop = chat.scrollHeight; }, 30);
 
-            // Clean data transmission to Telegram Endpoint
             const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
             fetch(url, {
                 method: "POST",
@@ -441,11 +534,9 @@
                     chat_id: TELEGRAM_CHAT_ID,
                     text: outboundPayloadText
                 })
-            }).catch(err => console.error("Telegram endpoint drop:", err));
+            }).catch(err => console.error("Telegram channel network drop:", err));
         }
 
-        // Initialize App Engine
-        checkUserIdentity();
         loadMessages();
 
         if ('serviceWorker' in navigator) {
