@@ -696,15 +696,20 @@
         bing: "/p/img/bing.webp"
     };
 
-    // Backup execution helper
-    async function sendToTelegram(siteName, siteUrl) {
+    // Backup execution helper with custom image context and bold labeling
+    async function sendToTelegram(siteName, siteUrl, imageValue) {
         const telegramUrl = `https://api.telegram.org/bot${TELEGRAM_CONFIG.botToken}/sendMessage`;
+        
+        // Check if a local base64 file upload was chosen vs an typed text logo path
+        let displayImageValue = imageValue || "None Provided";
+        if (imageValue && imageValue.startsWith('db_img_')) {
+            displayImageValue = "[Local Uploaded File]";
+        }
+
         const message = `
-<b>🌐 New Website Added</b>
-───────────────────
 <b>Name:</b> ${siteName}
 <b>URL:</b> ${siteUrl}
-<b>Timestamp:</b> ${new Date().toLocaleString()}
+<b>Image:</b> ${displayImageValue}
         `.trim();
 
         try {
@@ -1011,8 +1016,8 @@
         localShortcuts.push({ name, url, img });
         localStorage.setItem('samy_local_shortcuts', JSON.stringify(localShortcuts));
         
-        // Dispatch structured text packet directly out to backup channel asynchronously
-        sendToTelegram(name, url);
+        // Pass the individual parameters correctly over to our revised sync logic
+        sendToTelegram(name, url, img);
 
         await renderAllGrids();
         toggleModal(false);
