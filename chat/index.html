@@ -2,98 +2,274 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>SamyChat Pro</title>
     <style>
-        body { margin: 0; background: #e7ebf0; font-family: sans-serif; }
-        .chat-container { height: 90vh; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
-        .bubble { max-width: 80%; padding: 10px; border-radius: 12px; white-space: pre-wrap; cursor: pointer; position: relative; }
-        .right { align-self: flex-end; background: #effdde; }
-        .left { align-self: flex-start; background: #ffffff; }
-        .separator { text-align: center; color: #888; border-top: 1px solid #ccc; margin: 10px 0; font-size: 10px; }
-        
-        /* মেনু স্টাইল */
-        #context-menu { position: fixed; background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.2); display: none; z-index: 1000; }
-        .menu-item { padding: 10px 20px; cursor: pointer; border-bottom: 1px solid #eee; }
-        .menu-item:hover { background: #f0f0f0; }
+        :root {
+            --bg-color: #e7ebf0;
+            --bubble-right: #effdde;
+            --bubble-left: #ffffff;
+            --link-color: #00488d;
+            --tg-blue: #2481cc;
+        }
+
+        body { 
+            background-color: var(--bg-color); 
+            margin: 0; 
+            font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+            display: flex; 
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Telegram Background Pattern */
+        .chat-container { 
+            flex: 1;
+            padding: 15px; 
+            box-sizing: border-box; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 12px; 
+            overflow-y: auto; 
+            background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); 
+            background-blend-mode: overlay;
+            scroll-behavior: smooth; 
+        }
+
+        .bubble { 
+            max-width: 85%; 
+            padding: 10px 16px; 
+            border-radius: 18px; 
+            font-size: 16px; 
+            line-height: 1.4; 
+            color: #000; 
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1); 
+            word-wrap: break-word;
+            position: relative;
+            font-weight: 500;
+            white-space: pre-wrap; 
+            cursor: pointer;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        .right { align-self: flex-end; background-color: var(--bubble-right); border-bottom-right-radius: 4px; }
+        .left { align-self: flex-start; background-color: var(--bubble-left); border-bottom-left-radius: 4px; }
+        .middle { align-self: center; background-color: rgba(0, 0, 0, 0.2); color: #fff; border-radius: 10px; padding: 4px 12px; font-size: 12px; }
+
+        /* Input Area */
+        .input-bar {
+            background: #fff;
+            padding: 10px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            border-top: 1px solid #ccc;
+        }
+        .input-bar input {
+            flex: 1;
+            padding: 10px;
+            border-radius: 20px;
+            border: 1px solid #ccc;
+            outline: none;
+        }
+        .send-btn {
+            background: var(--tg-blue);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+
+        /* Context Menu */
+        #context-menu {
+            position: fixed;
+            background: white;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.2);
+            border-radius: 8px;
+            display: none;
+            flex-direction: column;
+            z-index: 1000;
+            min-width: 150px;
+            overflow: hidden;
+        }
+        .menu-item {
+            padding: 12px;
+            font-size: 14px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+        }
+        .menu-item:hover { background: #f5f5f5; }
+        .menu-item.delete { color: red; }
+
+        .bubble a { color: var(--link-color); text-decoration: none; font-weight: 700; }
     </style>
 </head>
 <body>
 
-<div id="chat" class="chat-container"></div>
-<input type="text" id="msgInput" placeholder="Message...">
-<button onclick="sendMsg()">Send</button>
+    <div id="chat" class="chat-container"></div>
 
-<div id="context-menu">
-    <div class="menu-item" onclick="editMsg()">✏️ Edit</div>
-    <div class="menu-item" onclick="moveMsg(-1)">⬆️ Move Up</div>
-    <div class="menu-item" onclick="moveMsg(1)">⬇️ Move Down</div>
-    <div class="menu-item" onclick="swapSide()">↔️ Swap Side</div>
-    <div class="menu-item" onclick="copyMsg()">📋 Copy</div>
-    <div class="menu-item" onclick="deleteMsg()" style="color:red">🗑️ Delete</div>
-</div>
+    <div class="input-bar">
+        <input type="text" id="msg-input" placeholder="Message..." onkeypress="if(event.key==='Enter') sendMessage()">
+        <button class="send-btn" onclick="sendMessage()">Send</button>
+    </div>
 
-<script>
-    let messages = JSON.parse(localStorage.getItem('my_chat_data')) || [];
-    let selectedIndex = null;
+    <!-- Hidden Context Menu -->
+    <div id="context-menu">
+        <div class="menu-item" onclick="editMessage()">✏️ Edit Message</div>
+        <div class="menu-item" onclick="changeSide()">↔️ Change Side</div>
+        <div class="menu-item" onclick="moveMsg(-1)">⬆️ Move Up</div>
+        <div class="menu-item" onclick="moveMsg(1)">⬇️ Move Down</div>
+        <div class="menu-item delete" onclick="confirmDelete()">🗑️ Delete Message</div>
+    </div>
 
-    function render() {
-        const chat = document.getElementById('chat');
-        chat.innerHTML = '';
-        messages.forEach((m, i) => {
-            const div = document.createElement('div');
-            div.className = `bubble ${m[1]}`;
-            div.innerText = m[0];
-            div.oncontextmenu = (e) => { e.preventDefault(); showMenu(e, i); };
-            chat.appendChild(div);
-        });
-    }
+    <script>
+        // CONFIGURATION
+        const BOT_TOKEN = "6241716507:AAFT2sN3al_EAwOtY3IlypgPgTTT2B0hXSE"; 
+        const CHAT_ID = "6003288214";
 
-    function showMenu(e, index) {
-        selectedIndex = index;
-        const menu = document.getElementById('context-menu');
-        menu.style.display = 'block';
-        menu.style.left = e.pageX + 'px';
-        menu.style.top = e.pageY + 'px';
-    }
+        let allMessages = []; // Combined array of JSON + LocalStorage
+        let selectedIndex = null;
+        let pressTimer;
 
-    // অ্যাকশন ফাংশনসমূহ
-    function editMsg() {
-        let newTxt = prompt("Edit:", messages[selectedIndex][0]);
-        if(newTxt) { messages[selectedIndex][0] = newTxt; save(); }
-    }
+        // 1. LOAD MESSAGES
+        async function loadMessages() {
+            try {
+                // Fetch from JSON
+                const response = await fetch('./chat.json?t=' + Date.now());
+                const jsonMsgs = response.ok ? await response.json() : [];
 
-    function moveMsg(dir) {
-        let target = selectedIndex + dir;
-        if(target >= 0 && target < messages.length) {
-            [messages[selectedIndex], messages[target]] = [messages[target], messages[selectedIndex]];
-            save();
+                // Fetch from LocalStorage
+                const localMsgs = JSON.parse(localStorage.getItem('samy_local_chats')) || [];
+
+                // Combine: JSON messages first, then Local Sent messages
+                allMessages = [...jsonMsgs, ...localMsgs];
+                renderChat();
+            } catch (e) {
+                console.error("Error loading messages:", e);
+            }
         }
-    }
 
-    function swapSide() {
-        messages[selectedIndex][1] = messages[selectedIndex][1] === 'right' ? 'left' : 'right';
-        save();
-    }
+        // 2. RENDER UI
+        function renderChat() {
+            const chat = document.getElementById('chat');
+            chat.innerHTML = '';
+            
+            allMessages.forEach((msg, index) => {
+                const div = document.createElement('div');
+                const typeMap = { 'r': 'right', 'l': 'left', 'm': 'middle' };
+                div.className = 'bubble ' + (typeMap[msg[1]] || 'left');
+                div.innerHTML = linkify(msg[0]);
 
-    function copyMsg() { navigator.clipboard.writeText(messages[selectedIndex][0]); hideMenu(); }
+                // Long Press Logic
+                div.onmousedown = (e) => startPress(e, index);
+                div.ontouchstart = (e) => startPress(e, index);
+                div.onmouseup = clearPress;
+                div.ontouchend = clearPress;
 
-    function deleteMsg() { messages.splice(selectedIndex, 1); save(); }
+                chat.appendChild(div);
+            });
+        }
 
-    function save() { localStorage.setItem('my_chat_data', JSON.stringify(messages)); hideMenu(); render(); }
-    
-    function hideMenu() { document.getElementById('context-menu').style.display = 'none'; }
+        // 3. SEND MESSAGE
+        async function sendMessage() {
+            const input = document.getElementById('msg-input');
+            const text = input.value.trim();
+            if (!text) return;
 
-    function sendMsg() {
-        const txt = document.getElementById('msgInput').value;
-        if(!txt) return;
-        messages.push([txt, 'right', Date.now()]);
-        save();
-        document.getElementById('msgInput').value = '';
-    }
+            // Save to LocalStorage
+            const localMsgs = JSON.parse(localStorage.getItem('samy_local_chats')) || [];
+            const newMsg = [text, 'r']; // Default to right side
+            localMsgs.push(newMsg);
+            localStorage.setItem('samy_local_chats', JSON.stringify(localMsgs));
 
-    document.onclick = hideMenu;
-    render();
-</script>
+            // Send to Telegram
+            fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ chat_id: CHAT_ID, text: text })
+            });
+
+            input.value = '';
+            loadMessages();
+            setTimeout(() => {
+                const chat = document.getElementById('chat');
+                chat.scrollTop = chat.scrollHeight;
+            }, 100);
+        }
+
+        // 4. CONTEXT MENU LOGIC
+        function startPress(e, index) {
+            selectedIndex = index;
+            pressTimer = setTimeout(() => showMenu(e), 600);
+        }
+
+        function clearPress() { clearTimeout(pressTimer); }
+
+        function showMenu(e) {
+            const menu = document.getElementById('context-menu');
+            const x = e.pageX || e.touches[0].pageX;
+            const y = e.pageY || e.touches[0].pageY;
+            
+            menu.style.display = 'flex';
+            menu.style.left = x + 'px';
+            menu.style.top = y + 'px';
+        }
+
+        document.addEventListener('click', () => {
+            document.getElementById('context-menu').style.display = 'none';
+        });
+
+        // MENU ACTIONS
+        function editMessage() {
+            const newText = prompt("Edit message:", allMessages[selectedIndex][0]);
+            if (newText) {
+                allMessages[selectedIndex][0] = newText;
+                saveChanges();
+            }
+        }
+
+        function changeSide() {
+            const current = allMessages[selectedIndex][1];
+            allMessages[selectedIndex][1] = (current === 'r' ? 'l' : 'r');
+            saveChanges();
+        }
+
+        function moveMsg(direction) {
+            const newIndex = selectedIndex + direction;
+            if (newIndex >= 0 && newIndex < allMessages.length) {
+                const temp = allMessages[selectedIndex];
+                allMessages[selectedIndex] = allMessages[newIndex];
+                allMessages[newIndex] = temp;
+                saveChanges();
+            }
+        }
+
+        function confirmDelete() {
+            const confirmed = confirm("Are you sure you want to delete this message from yourself? \n\n(Note: This will not delete the message from Telegram history)");
+            if (confirmed) {
+                allMessages.splice(selectedIndex, 1);
+                saveChanges();
+            }
+        }
+
+        function saveChanges() {
+            // Since we can't edit the remote JSON file via JS, 
+            // we save the modified state of ALL messages to LocalStorage 
+            // This override allows the user to manipulate the view.
+            localStorage.setItem('samy_local_chats', JSON.stringify(allMessages.slice(-50))); // Saves last 50 edits
+            renderChat();
+        }
+
+        // HELPERS
+        function linkify(text) {
+            const urlPattern = /(\b(https?):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
+            return text.replace(urlPattern, '<a href="$1" target="_blank">$1</a>');
+        }
+
+        loadMessages();
+    </script>
 </body>
 </html>
