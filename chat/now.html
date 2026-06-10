@@ -53,7 +53,6 @@
             -webkit-overflow-scrolling: touch;
         }
 
-        /* Fixed structural design layout for optimal time positioning without text collisions */
         .bubble { 
             max-width: 85%; 
             padding: 8px 12px; 
@@ -93,7 +92,6 @@
             border-bottom-left-radius: 4px; 
         }
 
-        /* Specialized setup block element styling */
         .setup-card {
             display: flex;
             flex-direction: column;
@@ -326,7 +324,6 @@
             }
         }
 
-        // Integrated welcome message containing input action controls directly inside the chat timeline
         function appendWelcomeWizard(chatElement) {
             const dateDiv = document.createElement('div');
             dateDiv.className = 'middle';
@@ -410,7 +407,6 @@
             const messages = JSON.parse(localStorage.getItem("samy_chat_cache")) || [];
             chat.innerHTML = ''; 
 
-            // Initialize wizard card at the beginning of the timeline layout
             appendWelcomeWizard(chat);
 
             let lastDateLabel = "Today"; 
@@ -509,7 +505,6 @@
 
             const savedName = localStorage.getItem("samy_chat_username");
             
-            // 1. Save ONLY the clean raw message to the local browser chat interface log
             const messages = JSON.parse(localStorage.getItem("samy_chat_cache")) || [];
             messages.push([rawMessage, "user", Date.now()]);
             localStorage.setItem("samy_chat_cache", JSON.stringify(messages));
@@ -520,20 +515,20 @@
             const chat = document.getElementById('chat');
             setTimeout(() => { chat.scrollTop = chat.scrollHeight; }, 30);
 
-            // 2. Format the payload for Telegram with an empty line gap (\n\n)
             let telegramPayloadText = rawMessage;
             if (savedName) {
-                telegramPayloadText = `${savedName}\n\n${rawMessage}`;
+                // Formatted with bold tags and a single line drop (\n)
+                telegramPayloadText = `*Sender: ${savedName}*\n${rawMessage}`;
             }
 
-            // 3. Transmit the formatted text safely over to Telegram API endpoints
             const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
             fetch(url, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     chat_id: TELEGRAM_CHAT_ID,
-                    text: telegramPayloadText
+                    text: telegramPayloadText,
+                    parse_mode: "MarkdownV2"
                 })
             }).catch(err => console.error("Telegram network endpoint drop:", err));
         }
