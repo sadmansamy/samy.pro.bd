@@ -64,16 +64,20 @@
             border-bottom-left-radius: 4px; 
         }
 
+        /* Updated Middle Bubble: Solid dark background matching the badge look */
         .middle {
             align-self: center;
-            background-color: rgba(0, 0, 0, 0.2);
+            background-color: rgba(0, 0, 0, 0.4);
             color: #ffffff;
-            border-radius: 10px;
-            padding: 4px 12px;
+            border-radius: 12px;
+            padding: 5px 14px;
             font-size: 12px;
-            margin: 5px 0;
+            font-weight: bold;
+            margin: 8px 0;
             box-shadow: none;
             text-align: center;
+            max-width: 90%;
+            letter-spacing: 0.3px;
         }
 
         .bubble a { 
@@ -84,7 +88,7 @@
             white-space: normal;
         }
 
-        /* Bold Separator Styling */
+        /* Thick Separator Line */
         .section-separator {
             display: flex;
             align-items: center;
@@ -97,21 +101,17 @@
         .section-separator::after {
             content: '';
             flex: 1;
-            border-bottom: 2.5px solid rgba(0, 0, 0, 0.2); /* Thicker line */
+            border-bottom: 2.5px solid rgba(0, 0, 0, 0.2); 
         }
 
-        .section-separator:not(:empty)::before {
-            margin-right: .5em;
-        }
+        .section-separator:not(:empty)::before { margin-right: .5em; }
+        .section-separator:not(:empty)::after { margin-left: .5em; }
 
-        .section-separator:not(:empty)::after {
-            margin-left: .5em;
-        }
-
+        /* Solid Header Badge for "My Messages" */
         .section-badge {
             background-color: rgba(0, 0, 0, 0.4);
             color: #ffffff;
-            padding: 4px 14px;
+            padding: 5px 14px;
             border-radius: 12px;
             font-size: 12px;
             font-weight: bold;
@@ -177,7 +177,7 @@
             // Render File Messages
             fileMessages.forEach(msg => appendBubble(chat, msg));
 
-            // Modern Bold Separator with Title Badge
+            // Thick Divider Line with "My Messages" Badge
             if (fileMessages.length > 0 && localMessages.length > 0) {
                 const separatorContainer = document.createElement('div');
                 separatorContainer.className = 'section-separator';
