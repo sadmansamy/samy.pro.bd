@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SamyChat Hybrid</title>
+    <style>
+        :root { --bg-color: #e7ebf0; --bubble-right: #effdde; --bubble-left: #ffffff; }
+        body { margin: 0; font-family: sans-serif; background: var(--bg-color); }
+        .chat-container { height: 90vh; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
+        .bubble { max-width: 80%; padding: 10px; border-radius: 12px; white-space: pre-wrap; position: relative; cursor: pointer; }
+        .right { align-self: flex-end; background: var(--bubble-right); }
+        .left { align-self: flex-start; background: var(--bubble-left); }
+        .separator { text-align: center; font-size: 12px; color: #888; margin: 10px 0; border-top: 1px solid #ccc; padding-top: 5px; }
+        .input-bar { display: flex; padding: 10px; gap: 5px; }
+        input { flex: 1; padding: 10px; border-radius: 20px; border: 1px solid #ccc; }
+        #menu { position: fixed; display: none; background: white; border: 1px solid #ccc; padding: 5px; border-radius: 8px; box-shadow: 2px 2px 5px #ccc; }
+        .menu-item { padding: 5px 10px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<div id="chat" class="chat-container"></div>
+<div class="input-bar">
+    <input type="text" id="msgInput" placeholder="Type a message...">
+    <button onclick="sendMessage()">Send</button>
+</div>
+
+<div id="menu">
+    <div class="menu-item" onclick="deleteMsg()">Delete</div>
+    <div class="menu-item" onclick="toggleSide()">Toggle Left/Right</div>
+</div>
+
+<script>
+    let currentMsgs = [];
+
+    async function loadAll() {
+        // ১. JSON থেকে লোড করা
+        const response = await fetch('./chat.json?t=' + Date.now()).catch(() => []);
+        const jsonMsgs = response.ok ? await response.json() : [];
+        
+        // ২. LocalStorage থেকে লোড করা
+        const localMsgs = JSON.parse(localStorage.getItem('myMsgs') || '[]');
+        
+        const container = document.getElementById('chat');
+        container.innerHTML = '';
+
+        // JSON মেসেজ রেন্ডার
+        jsonMsgs.forEach(m => renderBubble(m[0], m[1], false));
+
+        // সেপারেটর লাইন
+        if(localMsgs.length > 0) {
+            container.innerHTML += '<div class="separator">My Messages</div>';
+        }
+
+        // LocalStorage মেসেজ রেন্ডার
+        localMsgs.forEach((m, index) => renderBubble(m.text, m.side, true, index));
+    }
+
+    function renderBubble(text, side, isLocal, index) {
+        const div = document.createElement('div');
+        div.className = `bubble ${side}`;
+        div.innerText = text;
+        if(isLocal) {
+            div.oncontextmenu = (e) => { e.preventDefault(); showMenu(e, index); };
+        }
+        document.getElementById('chat').appendChild(div);
+    }
+
+    function sendMessage() {
+        const input = document.getElementById('msgInput');
+        if(!input.value) return;
+        const localMsgs = JSON.parse(localStorage.getItem('myMsgs') || '[]');
+        localMsgs.push({ text: input.value, side: 'right' });
+        localStorage.setItem('myMsgs', JSON.stringify(localMsgs));
+        input.value = '';
+        loadAll();
+    }
+
+    // মেনু এবং এডিট লজিক
+    let targetIndex = null;
+    function showMenu(e, index) {
+        targetIndex = index;
+        const menu = document.getElementById('menu');
+        menu.style.display = 'block';
+        menu.style.left = e.pageX + 'px';
+        menu.style.top = e.pageY + 'px';
+    }
+
+    function deleteMsg() {
+        let localMsgs = JSON.parse(localStorage.getItem('myMsgs'));
+        localMsgs.splice(targetIndex, 1);
+        localStorage.setItem('myMsgs', JSON.stringify(localMsgs));
+        document.getElementById('menu').style.display = 'none';
+        loadAll();
+    }
+
+    function toggleSide() {
+        let localMsgs = JSON.parse(localStorage.getItem('myMsgs'));
+        localMsgs[targetIndex].side = localMsgs[targetIndex].side === 'right' ? 'left' : 'right';
+        localStorage.setItem('myMsgs', JSON.stringify(localMsgs));
+        document.getElementById('menu').style.display = 'none';
+        loadAll();
+    }
+
+    document.addEventListener('click', () => document.getElementById('menu').style.display = 'none');
+    loadAll();
+</script>
+</body>
+</html>
