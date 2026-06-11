@@ -84,6 +84,41 @@
             white-space: normal;
         }
 
+        /* Bold Separator Styling */
+        .section-separator {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            margin: 20px 0 10px 0;
+            width: 100%;
+        }
+
+        .section-separator::before,
+        .section-separator::after {
+            content: '';
+            flex: 1;
+            border-bottom: 2.5px solid rgba(0, 0, 0, 0.2); /* Thicker line */
+        }
+
+        .section-separator:not(:empty)::before {
+            margin-right: .5em;
+        }
+
+        .section-separator:not(:empty)::after {
+            margin-left: .5em;
+        }
+
+        .section-badge {
+            background-color: rgba(0, 0, 0, 0.4);
+            color: #ffffff;
+            padding: 4px 14px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
         .chat-container::-webkit-scrollbar { width: 4px; }
         .chat-container::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 10px; }
     </style>
@@ -117,7 +152,6 @@
                        .replace(wwwPattern, '$1<a href="http://$2" target="_blank">$2</a>');
         }
 
-        // Helper to append bubble
         function appendBubble(container, msg) {
             const div = document.createElement('div');
             const typeMap = { 'r': 'right', 'l': 'left', 'm': 'middle' };
@@ -143,11 +177,17 @@
             // Render File Messages
             fileMessages.forEach(msg => appendBubble(chat, msg));
 
-            // Add visual separator if both exist
+            // Modern Bold Separator with Title Badge
             if (fileMessages.length > 0 && localMessages.length > 0) {
-                const hr = document.createElement('hr');
-                hr.style = "width: 80%; border: 0; border-top: 1px solid rgba(0,0,0,0.1); margin: 10px auto;";
-                chat.appendChild(hr);
+                const separatorContainer = document.createElement('div');
+                separatorContainer.className = 'section-separator';
+                
+                const badge = document.createElement('span');
+                badge.className = 'section-badge';
+                badge.textContent = 'My Messages';
+                
+                separatorContainer.appendChild(badge);
+                chat.appendChild(separatorContainer);
             }
 
             // Render Local Messages
