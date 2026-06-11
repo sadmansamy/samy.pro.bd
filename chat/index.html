@@ -19,22 +19,12 @@
             font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
             display: flex; 
             justify-content: center; 
-            height: 100vh;
-            overflow: hidden;
-        }
-
-        /* Container to keep both chat window and bottom input structured */
-        .app-container {
-            width: 100%; 
-            max-width: 600px; 
-            height: 100vh; 
-            display: flex;
-            flex-direction: column;
-            background-color: var(--bg-color);
         }
 
         .chat-container { 
-            flex: 1; 
+            width: 100%; 
+            max-width: 600px; 
+            height: 100vh; 
             padding: 15px; 
             box-sizing: border-box; 
             display: flex; 
@@ -59,6 +49,7 @@
             overflow-wrap: break-word; 
             position: relative;
             font-weight: 500;
+            /* ADDED: This preserves \n line breaks and wraps long text */
             white-space: pre-wrap; 
         }
 
@@ -74,89 +65,48 @@
             border-bottom-left-radius: 4px; 
         }
 
-        .middle {
-            align-self: center;
-            background-color: rgba(0, 0, 0, 0.2);
-            color: #ffffff;
-            border-radius: 10px;
-            padding: 4px 12px;
-            font-size: 12px;
-            margin: 5px 0;
-            box-shadow: none;
-            text-align: center;
-        }
+
+.middle {
+    align-self: center;
+    background-color: rgba(0, 0, 0, 0.2);
+    color: #ffffff;
+    border-radius: 10px;
+    padding: 4px 12px;
+    font-size: 12px;
+    margin: 5px 0;
+    box-shadow: none;
+    text-align: center;
+}
 
         .bubble a { 
             color: var(--link-color); 
             text-decoration: none; 
             font-weight: 700; 
             border-bottom: 1px solid rgba(0, 72, 141, 0.2);
+            /* Reset white-space for links if needed, though pre-wrap usually works fine here */
             white-space: normal;
         }
 
-        /* Bottom Input Bar Styles */
-        .input-container {
-            display: flex;
-            padding: 10px;
-            background-color: #ffffff;
-            border-top: 1px solid rgba(0,0,0,0.1);
-            gap: 8px;
-            box-sizing: border-box;
-        }
-
-        .input-container input {
-            flex: 1;
-            padding: 10px 15px;
-            border: 1px solid #ccc;
-            border-radius: 20px;
-            outline: none;
-            font-size: 16px;
-        }
-
-        .input-container button {
-            background-color: #2481cc;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 16px;
-            transition: background-color 0.2s;
-        }
-
-        .input-container button:hover {
-            background-color: #1a6fa8;
-        }
-
+        /* Custom Scrollbar for a cleaner look */
         .chat-container::-webkit-scrollbar { width: 4px; }
         .chat-container::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 10px; }
     </style>
 </head>
 <body>
-    <div class="app-container">
-        <!-- Chat messages render inside this container -->
-        <div id="chat" class="chat-container"></div>
-        
-        <!-- Interactive Input Bar at the bottom -->
-        <div class="input-container">
-            <input type="text" id="message-input" placeholder="Type a message..." autocomplete="off">
-            <button id="send-btn">Send</button>
-        </div>
-    </div>
+    <div id="chat" class="chat-container"></div>
 
     <script>
-        // REPLACE placeholders with your actual credentials safely if testing locally
-        const TELEGRAM_TOKEN = 'YOUR_BOT_TOKEN_HERE'; 
-        const TELEGRAM_CHAT_ID = 'YOUR_CHAT_ID_HERE';
-
-        let remoteMessages = [];
         let isFirstLoad = true;
 
         function linkify(text) {
+            // First, protect line breaks by temporarily replacing \n with a placeholder 
+            // if you find that linkify regex messes with them, but usually white-space: pre-wrap handles it.
+            
+            // Handle Markdown style links [Text](Url)
             const hiddenLinkPattern = /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g;
             text = text.replace(hiddenLinkPattern, '<a href="$2" target="_blank">$1</a>');
 
+            // Handle raw URLs
             const urlPattern = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
             const wwwPattern = /(^|[^\/])(www\.[\S]+(\b|$))/gim;
             
@@ -164,99 +114,41 @@
                        .replace(wwwPattern, '$1<a href="http://$2" target="_blank">$2</a>');
         }
 
-        // Fetch messages from your chat.json configuration
         async function loadMessages() {
             try {
+                const chat = document.getElementById('chat');
+                const isAtBottom = chat.scrollHeight - chat.clientHeight <= chat.scrollTop + 60;
+
                 const response = await fetch('./chat.json?t=' + Date.now());
                 if (!response.ok) throw new Error("File not found");
                 
-                remoteMessages = await response.json();
-                renderMessages();
+                const messages = await response.json();
+                
+                chat.innerHTML = ''; 
+                messages.forEach(msg => {
+                    const div = document.createElement('div');
+                 
+const typeMap = { 'r': 'right', 'l': 'left', 'm': 'middle' };
+div.className = 'bubble ' + (typeMap[msg[1]] || 'left');
+
+                    
+                    // The linkify function processes the text, 
+                    // and white-space: pre-wrap in CSS handles the \n
+                    div.innerHTML = linkify(msg[0]);
+                    
+                    chat.appendChild(div);
+                });
+
+                if (isFirstLoad) {
+                    chat.scrollTop = 0; 
+                    isFirstLoad = false;
+                } else if (isAtBottom) {
+                    chat.scrollTop = chat.scrollHeight;
+                }
             } catch (e) { 
                 console.log("Waiting for app-chats.json update..."); 
-                // Render local storage even if file loading fails
-                renderMessages();
             }
         }
-
-        // Retrieve local messages saved in the browser's localStorage
-        function getLocalMessages() {
-            const local = localStorage.getItem('local_messages');
-            return local ? JSON.parse(local) : [];
-        }
-
-        // Append and store sent message locally
-        function saveLocalMessage(text) {
-            const local = getLocalMessages();
-            local.push([text, 'r']); // 'r' represents Right alignment bubble
-            localStorage.setItem('local_messages', JSON.stringify(local));
-        }
-
-        // Combines server JSON and browser LocalStorage messages to render everything
-        function renderMessages() {
-            const chat = document.getElementById('chat');
-            const isAtBottom = chat.scrollHeight - chat.clientHeight <= chat.scrollTop + 60;
-            
-            const localMessages = getLocalMessages();
-            const allMessages = [...remoteMessages, ...localMessages];
-            
-            chat.innerHTML = ''; 
-            allMessages.forEach(msg => {
-                const div = document.createElement('div');
-                const typeMap = { 'r': 'right', 'l': 'left', 'm': 'middle' };
-                div.className = 'bubble ' + (typeMap[msg[1]] || 'left');
-                div.innerHTML = linkify(msg[0]);
-                chat.appendChild(div);
-            });
-
-            if (isFirstLoad) {
-                chat.scrollTop = chat.scrollHeight; 
-                isFirstLoad = false;
-            } else if (isAtBottom) {
-                chat.scrollTop = chat.scrollHeight;
-            }
-        }
-
-        // Handle sending the message
-        async function sendMessage() {
-            const input = document.getElementById('message-input');
-            const text = input.value.trim();
-            if (!text) return;
-
-            // 1. Save locally in browser
-            saveLocalMessage(text);
-            input.value = '';
-
-            // Render updated state immediately so user sees their output
-            renderMessages();
-
-            // 2. Deliver to Telegram Bot
-            try {
-                const url = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`;
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        chat_id: TELEGRAM_CHAT_ID,
-                        text: text
-                    })
-                });
-                
-                if (!response.ok) {
-                    console.error("Telegram API Error:", await response.text());
-                }
-            } catch (err) {
-                console.error("Network error delivering message:", err);
-            }
-        }
-
-        // Event listeners for sending message
-        document.getElementById('send-btn').addEventListener('click', sendMessage);
-        document.getElementById('message-input').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                sendMessage();
-            }
-        });
 
         loadMessages();
         setInterval(loadMessages, 10000);
