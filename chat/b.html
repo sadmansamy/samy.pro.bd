@@ -22,20 +22,19 @@
         }
 
        .chat-container { 
-    width: 100%; 
-    max-width: 600px; 
-    height: 100vh; 
-    /* Change padding-bottom from 15px to 80px */
-    padding: 15px 15px 80px 15px; 
-    box-sizing: border-box; 
-    display: flex; 
-    flex-direction: column; 
-    gap: 12px; 
-    overflow-y: auto; 
-    background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); 
-    background-blend-mode: overlay;
-    scroll-behavior: smooth; 
-}
+            width: 100%; 
+            max-width: 600px; 
+            height: 100vh; 
+            padding: 15px 15px 80px 15px; 
+            box-sizing: border-box; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 12px; 
+            overflow-y: auto; 
+            background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); 
+            background-blend-mode: overlay;
+            -webkit-overflow-scrolling: touch;
+        }
 
         .bubble { 
             max-width: 85%; 
@@ -49,7 +48,6 @@
             overflow-wrap: break-word; 
             position: relative;
             font-weight: 500;
-            /* ADDED: This preserves \n line breaks and wraps long text */
             white-space: pre-wrap; 
         }
 
@@ -65,105 +63,103 @@
             border-bottom-left-radius: 4px; 
         }
 
-
-.middle {
-    align-self: center;
-    background-color: rgba(0, 0, 0, 0.2);
-    color: #ffffff;
-    border-radius: 10px;
-    padding: 4px 12px;
-    font-size: 12px;
-    margin: 5px 0;
-    box-shadow: none;
-    text-align: center;
-}
+        .middle {
+            align-self: center;
+            background-color: rgba(0, 0, 0, 0.2);
+            color: #ffffff;
+            border-radius: 10px;
+            padding: 4px 12px;
+            font-size: 12px;
+            margin: 5px 0;
+            box-shadow: none;
+            text-align: center;
+        }
 
         .bubble a { 
             color: var(--link-color); 
             text-decoration: none; 
             font-weight: 700; 
             border-bottom: 1px solid rgba(0, 72, 141, 0.2);
-            /* Reset white-space for links if needed, though pre-wrap usually works fine here */
             white-space: normal;
         }
 
-        /* Custom Scrollbar for a cleaner look */
         .chat-container::-webkit-scrollbar { width: 4px; }
         .chat-container::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 10px; }
     </style>
 </head>
 <body>
     <div id="chat" class="chat-container"></div>
-<div class="input-bar-container" style="position: fixed; bottom: 0; left: 0; right: 0; padding: 10px; background: #e7ebf0; display: flex; gap: 10px;">
-    <input type="text" id="chat-input" placeholder="Message" style="flex: 1; padding: 10px; border-radius: 20px; border: none;">
-    <button onclick="sendLiveChatMessage()" style="padding: 10px 20px; border-radius: 20px; border: none; background: #2481cc; color: white;">Send</button>
-</div>
-
+    <div class="input-bar-container" style="position: fixed; bottom: 0; left: 0; right: 0; padding: 10px; background: #e7ebf0; display: flex; gap: 10px;">
+        <input type="text" id="chat-input" placeholder="Message" style="flex: 1; padding: 10px; border-radius: 20px; border: none; outline: none;">
+        <button onclick="sendLiveChatMessage()" style="padding: 10px 20px; border-radius: 20px; border: none; background: #2481cc; color: white; cursor: pointer;">Send</button>
+    </div>
 
     <script>
-    const TELEGRAM_BOT_TOKEN = "6241716507:AAFT2sN3al_EAwOtY3IlypgPgTTT2B0hXSE"; 
-    const TELEGRAM_CHAT_ID = "6003288214"; 
-    let isFirstLoad = true;
+        const TELEGRAM_BOT_TOKEN = "6241716507:AAFT2sN3al_EAwOtY3IlypgPgTTT2B0hXSE"; 
+        const TELEGRAM_CHAT_ID = "6003288214"; 
+        let isFirstLoad = true;
 
-    function linkify(text) {
-        const hiddenLinkPattern = /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g;
-        text = text.replace(hiddenLinkPattern, '<a href="$2" target="_blank">$1</a>');
-        const urlPattern = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
-        const wwwPattern = /(^|[^\/])(www\.[\S]+(\b|$))/gim;
-        return text.replace(urlPattern, (match) => text.includes('href="' + match) ? match : `<a href="${match}" target="_blank">${match}</a>`)
-                   .replace(wwwPattern, '$1<a href="http://$2" target="_blank">$2</a>');
-    }
+        function linkify(text) {
+            const hiddenLinkPattern = /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g;
+            text = text.replace(hiddenLinkPattern, '<a href="$2" target="_blank">$1</a>');
+            const urlPattern = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
+            const wwwPattern = /(^|[^\/])(www\.[\S]+(\b|$))/gim;
+            return text.replace(urlPattern, (match) => text.includes('href="' + match) ? match : `<a href="${match}" target="_blank">${match}</a>`)
+                       .replace(wwwPattern, '$1<a href="http://$2" target="_blank">$2</a>');
+        }
 
-    async function loadMessages() {
-        const chat = document.getElementById('chat');
-        const isAtBottom = chat.scrollHeight - chat.clientHeight <= chat.scrollTop + 60;
+        async function loadMessages() {
+            const chat = document.getElementById('chat');
+            const isAtBottom = chat.scrollHeight - chat.clientHeight <= chat.scrollTop + 60;
 
-        // Fetch file messages
-        let fileMessages = [];
-        try {
-            const response = await fetch('./chat.json?t=' + Date.now());
-            if (response.ok) fileMessages = await response.json();
-        } catch (e) { console.log("Waiting for chat.json..."); }
-        
-        // Fetch local messages
-        const localMessages = JSON.parse(localStorage.getItem("samy_chat_cache")) || [];
-        const allMessages = [...fileMessages, ...localMessages];
+            let fileMessages = [];
+            try {
+                const response = await fetch('./chat.json?t=' + Date.now());
+                if (response.ok) fileMessages = await response.json();
+            } catch (e) { console.log("Waiting for chat.json..."); }
+            
+            const localMessages = JSON.parse(localStorage.getItem("samy_chat_cache")) || [];
+            const allMessages = [...fileMessages, ...localMessages];
 
-        chat.innerHTML = ''; 
-        allMessages.forEach(msg => {
-            const div = document.createElement('div');
-            const typeMap = { 'r': 'right', 'l': 'left', 'm': 'middle' };
-            div.className = 'bubble ' + (typeMap[msg[1]] || 'left');
-            div.innerHTML = linkify(msg[0]);
-            chat.appendChild(div);
-        });
+            chat.innerHTML = ''; 
+            allMessages.forEach(msg => {
+                const div = document.createElement('div');
+                const typeMap = { 'r': 'right', 'l': 'left', 'm': 'middle' };
+                div.className = 'bubble ' + (typeMap[msg[1]] || 'left');
+                div.innerHTML = linkify(msg[0]);
+                chat.appendChild(div);
+            });
 
-        if (isFirstLoad) { chat.scrollTop = chat.scrollHeight; isFirstLoad = false; }
-        else if (isAtBottom) { chat.scrollTop = chat.scrollHeight; }
-    }
+            // UPDATED SCROLL LOGIC: Forces top on first load, otherwise maintains scroll
+            if (isFirstLoad) { 
+                chat.scrollTop = 0; 
+                isFirstLoad = false; 
+            } else if (isAtBottom) { 
+                chat.scrollTop = chat.scrollHeight; 
+            }
+        }
 
-    async function sendLiveChatMessage() {
-        const inputField = document.getElementById('chat-input');
-        const rawMessage = inputField.value.trim();
-        if (!rawMessage) return;
+        async function sendLiveChatMessage() {
+            const inputField = document.getElementById('chat-input');
+            const rawMessage = inputField.value.trim();
+            if (!rawMessage) return;
 
-        const messages = JSON.parse(localStorage.getItem("samy_chat_cache")) || [];
-        messages.push([rawMessage, 'r', Date.now()]);
-        localStorage.setItem("samy_chat_cache", JSON.stringify(messages));
+            const messages = JSON.parse(localStorage.getItem("samy_chat_cache")) || [];
+            messages.push([rawMessage, 'r', Date.now()]);
+            localStorage.setItem("samy_chat_cache", JSON.stringify(messages));
 
-        inputField.value = '';
+            inputField.value = '';
+            loadMessages();
+
+            fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: rawMessage })
+            });
+        }
+
         loadMessages();
-
-        fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: rawMessage })
-        });
-    }
-
-    loadMessages();
-    setInterval(loadMessages, 10000);
-</script>
-
+        setInterval(loadMessages, 10000);
+    </script>
 </body>
 </html>
