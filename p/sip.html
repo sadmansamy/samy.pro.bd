@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern SIP/IPTSP Portal</title>
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+            --card-bg: rgba(255, 255, 255, 0.9);
+            --text-primary: #2d3748;
+            --text-secondary: #718096;
+            --accent-color: #3182ce;
+            --border-radius: 16px;
+            --shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: var(--bg-gradient);
+            margin: 0;
+            padding: 40px 20px;
+            color: var(--text-primary);
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 40px;
+            color: #1a202c;
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            display: block;
+            width: 50px;
+            height: 4px;
+            background: var(--accent-color);
+            margin: 10px auto 0;
+            border-radius: 2px;
+        }
+
+        /* Responsive Grid Setup */
+        .sip-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+        }
+
+        /* Modern Glassmorphic Card Construction */
+        .sip-card {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: 25px;
+            transition: var(--transition);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .sip-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(49, 130, 206, 0.15);
+            border-color: rgba(49, 130, 206, 0.3);
+        }
+
+        /* Uniform Logo Wrapper */
+        .logo-wrapper {
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 10px;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+            margin-bottom: 20px;
+        }
+
+        .logo-wrapper img {
+            max-height: 100%;
+            max-width: 100%;
+            object-fit: contain;
+        }
+
+        .provider-name {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin: 0 0 15px 0;
+            color: #2d3748;
+            text-align: center;
+        }
+
+        /* Clean Metadata List styling */
+        .details-list {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 20px 0;
+            font-size: 0.9rem;
+        }
+
+        .details-list li {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #edf2f7;
+        }
+
+        .details-list li:last-child {
+            border-bottom: none;
+        }
+
+        .details-list span.label {
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .details-list span.value {
+            color: var(--text-primary);
+            font-weight: 600;
+            word-break: break-all;
+            text-align: right;
+            max-width: 60%;
+        }
+
+        /* Action Buttons */
+        .card-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: var(--transition);
+            text-align: center;
+        }
+
+        .btn-primary {
+            background-color: var(--accent-color);
+            color: #ffffff;
+        }
+
+        .btn-primary:hover {
+            background-color: #2b6cb0;
+        }
+
+        .btn-secondary {
+            background-color: #edf2f7;
+            color: var(--text-primary);
+        }
+
+        .btn-secondary:hover {
+            background-color: #e2e8f0;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2 class="section-title">SIP / IPTSP Providers</h2>
+    
+    <div class="sip-grid">
+        
+        <!-- Card 1: Sarker Communication (from your text example) -->
+        <div class="sip-card">
+            <div>
+                <div class="logo-wrapper">
+                    <!-- Adjusted dynamic fallback using your screenshot naming convention -->
+                    <img src="sip_sarker.jpeg" alt="Sarker Communication Logo">
+                </div>
+                <h3 class="provider-name">Sarker Communication</h3>
+                <ul class="details-list">
+                    <li><span class="label">Number Prefix:</span> <span class="value">09649-******</span></li>
+                    <li><span class="label">Balance Check:</span> <span class="value">123</span></li>
+                    <li><span class="label">Sip Domain:</span> <span class="value">sip.amarip.net</span></li>
+                </ul>
+            </div>
+            <div class="card-actions">
+                <a href="https://amarip.net/" target="_blank" class="btn btn-primary">User Panel</a>
+                <a href="https://banglacalls.com" target="_blank" class="btn btn-secondary">Website</a>
+            </div>
+        </div>
+
+        <!-- Card 2: iTalk (sip.italk.com.bd) -->
+        <div class="sip-card">
+            <div>
+                <div class="logo-wrapper">
+                    <img src="sip_icon.jpg" alt="iTalk Logo">
+                </div>
+                <h3 class="provider-name">iTalk IPTSP</h3>
+                <ul class="details-list">
+                    <li><span class="label">Prefix:</span> <span class="value">09612-******</span></li>
+                    <li><span class="label">Balance Check:</span> <span class="value">*123#</span></li>
+                    <li><span class="label">Sip Domain:</span> <span class="value">sip.italk.com.bd</span></li>
+                </ul>
+            </div>
+            <div class="card-actions">
+                <a href="https://sip.italk.com.bd/iconiptsp/" target="_blank" class="btn btn-primary">User Panel</a>
+                <a href="https://sip.italk.com.bd" target="_blank" class="btn btn-secondary">Website</a>
+            </div>
+        </div>
+
+        <!-- Card 3: ICC Communication -->
+        <div class="sip-card">
+            <div>
+                <div class="logo-wrapper">
+                    <img src="sip_icc.jpeg" alt="ICC Logo">
+                </div>
+                <h3 class="provider-name">ICC Communication</h3>
+                <ul class="details-list">
+                    <li><span class="label">Prefix:</span> <span class="value">09611-******</span></li>
+                    <li><span class="label">Balance Check:</span> <span class="value">Auto</span></li>
+                    <li><span class="label">Sip Domain:</span> <span class="value">icctalk.com</span></li>
+                </ul>
+            </div>
+            <div class="card-actions">
+                <a href="https://icctalk.com/" target="_blank" class="btn btn-primary">User Panel</a>
+                <a href="https://icctalk.com/" target="_blank" class="btn btn-secondary">Website</a>
+            </div>
+        </div>
+
+        <!-- Card 4: Weblink / WebVoice -->
+        <div class="sip-card">
+            <div>
+                <div class="logo-wrapper">
+                    <img src="sip_weblink.png" alt="Weblink Logo">
+                </div>
+                <h3 class="provider-name">Weblink / WebVoice</h3>
+                <ul class="details-list">
+                    <li><span class="label">Prefix:</span> <span class="value">09613-******</span></li>
+                    <li><span class="label">Balance Check:</span> <span class="value">123</span></li>
+                    <li><span class="label">Sip Domain:</span> <span class="value">webvoice.net</span></li>
+                </ul>
+            </div>
+            <div class="card-actions">
+                <a href="https://webvoice.net/" target="_blank" class="btn btn-primary">User Panel</a>
+                <a href="https://webvoice.net/" target="_blank" class="btn btn-secondary">Website</a>
+            </div>
+        </div>
+
+        <!-- Card 5: Premium Connectivity -->
+        <div class="sip-card">
+            <div>
+                <div class="logo-wrapper">
+                    <img src="sip_premium.jpeg" alt="Premium Connectivity Logo">
+                </div>
+                <h3 class="provider-name">Premium Connectivity</h3>
+                <ul class="details-list">
+                    <li><span class="label">Prefix:</span> <span class="value">09666-******</span></li>
+                    <li><span class="label">Balance Check:</span> <span class="value">Dial 1</span></li>
+                    <li><span class="label">Sip Domain:</span> <span class="value">iptsp.pmcon.net</span></li>
+                </ul>
+            </div>
+            <div class="card-actions">
+                <a href="https://iptsp.pmcon.net/portal/login" target="_blank" class="btn btn-primary">Portal Login</a>
+                <a href="https://iptsp.pmcon.net" target="_blank" class="btn btn-secondary">Website</a>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+</body>
+</html>
