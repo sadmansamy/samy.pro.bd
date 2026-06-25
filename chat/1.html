@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>SamyChat</title>
     <link rel="manifest" href="manifest.json">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <style>
         :root {
             --bg-page-desktop: #dae1e7; 
@@ -166,18 +165,11 @@
         .bubble-menu button:hover { background: rgba(0, 0, 0, 0.04); }
         .bubble-menu button.delete-btn { color: #ff3b30; }
 
-        .material-symbols-outlined {
+        .menu-svg-icon {
+            width: 22px;
+            height: 22px;
             display: inline-block;
-            font-family: 'Material Symbols Outlined';
-            font-size: 22px;
-            line-height: 1;
-            letter-spacing: normal;
-            text-transform: none;
-            white-space: nowrap;
-            word-wrap: normal;
-            direction: ltr;
-            -webkit-font-feature-settings: 'liga';
-            -webkit-font-smoothing: antialiased;
+            flex-shrink: 0;
         }
 
         .section-separator {
@@ -239,13 +231,13 @@
             width: 100%; 
             border: none; 
             outline: none; 
-            padding: 10px 0; /* Clean alignment padding */
+            padding: 10px 0; 
             font-size: 16px; 
             background: transparent;
             resize: none;
             font-family: inherit;
-            max-height: 120px; /* Limits maximum box height to ~5 lines */
-            overflow-y: hidden; /* Standard view remains completely hidden */
+            max-height: 120px; 
+            overflow-y: hidden; 
             box-sizing: border-box;
             line-height: 1.4;
         }
@@ -278,15 +270,21 @@
     <div id="action-menu" class="bubble-menu">
         <button onclick="copyMessageText()">
             <span>Copy</span>
-            <span class="material-symbols-outlined">content_copy</span>
+            <svg class="menu-svg-icon" viewBox="0 -960 960 960" fill="currentColor">
+                <path d="M360-240q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0-33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480ZM200-80q-33 0-56.5-23.5T120-160v-560h80v560h440v80H200Zm160-240v-480 480Z"/>
+            </svg>
         </button>
         <button id="menu-switch-btn" onclick="toggleMessageSide()">
             <span>Switch Side</span>
-            <span class="material-symbols-outlined">swap_horiz</span>
+            <svg class="menu-svg-icon" viewBox="0 -960 960 960" fill="currentColor">
+                <path d="M280-160 80-360l200-200 56 57-103 103h487v80H233l103 103-56 57Zm400-240-56-57 103-103H240v-80h487L624-743l56-57 200 200-200 200Z"/>
+            </svg>
         </button>
         <button id="menu-delete-btn" class="delete-btn" onclick="deleteLocalMessage()">
             <span>Delete</span>
-            <span class="material-symbols-outlined">delete</span>
+            <svg class="menu-svg-icon" viewBox="0 -960 960 960" fill="currentColor">
+                <path d="M280-120q-33 0-56.5-23.5T200-200v-520h-40v-80h200v-40h240v40h200v80h-40v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM360-280h80v-360h-80v360Zm160 0h80v-360h-80v360ZM280-720v520-520Z"/>
+            </svg>
         </button>
     </div>
 
@@ -462,7 +460,7 @@
 
             inputField.value = '';
             inputField.style.height = 'auto'; 
-            inputField.style.overflowY = 'hidden'; // Re-hide scroll indicators
+            inputField.style.overflowY = 'hidden'; 
             
             inputField.focus();
 
@@ -494,17 +492,15 @@
         const sendBtn = document.getElementById('send-btn');
         const chatInput = document.getElementById('chat-input');
 
-        // CALIBRATED AUTO-GROW ENGINE
         chatInput.addEventListener('input', function() {
             this.style.height = 'auto';
             
-            // Dynamic execution checks if text scale matches constraints or exceeds limit (120px)
             if (this.scrollHeight >= 120) {
                 this.style.height = '120px';
-                this.style.overflowY = 'auto'; // Only un-hide the inner scrollbar once max-height is reached
+                this.style.overflowY = 'auto'; 
             } else {
                 this.style.height = this.scrollHeight + 'px';
-                this.style.overflowY = 'hidden'; // Keep scrollbars hidden while typing lines 1 to 4
+                this.style.overflowY = 'hidden'; 
             }
         });
 
@@ -518,7 +514,7 @@
 
         chatInput.addEventListener('keydown', function(e) {
             if (e.key === 'Enter' && !e.shiftKey) {
-                // Inline operations left untouched
+                // Keep default browser layout adjustments clean
             }
         });
 
