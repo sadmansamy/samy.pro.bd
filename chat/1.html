@@ -228,7 +228,7 @@
             flex: 1; 
             background: #fff; 
             border-radius: 22px; 
-            padding: 2px 16px; 
+            padding: 0px 16px; 
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
             display: flex;
             align-items: flex-end;
@@ -239,15 +239,15 @@
             width: 100%; 
             border: none; 
             outline: none; 
-            padding: 8px 0; 
+            padding: 10px 0; /* Clean alignment padding */
             font-size: 16px; 
             background: transparent;
             resize: none;
             font-family: inherit;
-            max-height: 120px; 
-            overflow-y: auto; 
+            max-height: 120px; /* Limits maximum box height to ~5 lines */
+            overflow-y: hidden; /* Standard view remains completely hidden */
             box-sizing: border-box;
-            line-height: 1.3;
+            line-height: 1.4;
         }
 
         #chat-input::-webkit-scrollbar { width: 3px; }
@@ -435,9 +435,8 @@
 
             localMessages.forEach((msg, idx) => appendBubble(chat, msg, true, idx));
 
-            // RESTORED INITIAL TOP SCROLL
             if (isFirstLoad) { 
-                chat.scrollTop = 0; // Starts right back at the very top on load
+                chat.scrollTop = 0; 
                 isFirstLoad = false; 
             } else if (isAtBottom) { 
                 chat.scrollTop = chat.scrollHeight; 
@@ -463,6 +462,7 @@
 
             inputField.value = '';
             inputField.style.height = 'auto'; 
+            inputField.style.overflowY = 'hidden'; // Re-hide scroll indicators
             
             inputField.focus();
 
@@ -494,10 +494,18 @@
         const sendBtn = document.getElementById('send-btn');
         const chatInput = document.getElementById('chat-input');
 
+        // CALIBRATED AUTO-GROW ENGINE
         chatInput.addEventListener('input', function() {
             this.style.height = 'auto';
-            const nextHeight = Math.min(this.scrollHeight, 120);
-            this.style.height = nextHeight + 'px';
+            
+            // Dynamic execution checks if text scale matches constraints or exceeds limit (120px)
+            if (this.scrollHeight >= 120) {
+                this.style.height = '120px';
+                this.style.overflowY = 'auto'; // Only un-hide the inner scrollbar once max-height is reached
+            } else {
+                this.style.height = this.scrollHeight + 'px';
+                this.style.overflowY = 'hidden'; // Keep scrollbars hidden while typing lines 1 to 4
+            }
         });
 
         const handleSendTouch = (e) => {
@@ -510,7 +518,7 @@
 
         chatInput.addEventListener('keydown', function(e) {
             if (e.key === 'Enter' && !e.shiftKey) {
-                // Key behaviors left as native defaults
+                // Inline operations left untouched
             }
         });
 
